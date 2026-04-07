@@ -302,10 +302,16 @@
         for (let i = 0; i < 9; i += 1) cells.push(gray);
       }
 
-      const grid = cells.map((color) => {
-        const border = type === 'prozent' ? `border:1px solid ${line};` : '';
-        return `<div style="width:12px;height:12px;background:${color};border-radius:2px;${border}"></div>`;
-      }).join('');
+      let grid;
+      if(type === 'prozent'){
+        grid = `<div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;background:#111827;padding:2px;border-radius:2px;">
+          ${cells.map(color => `<div style="width:12px;height:12px;background:${color};"></div>`).join('')}
+        </div>`;
+      } else {
+        grid = `<div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">
+          ${cells.map(color => `<div style="width:12px;height:12px;background:${color};"></div>`).join('')}
+        </div>`;
+      }
       const label = type === 'teil' ? '🧩 W' : type === 'ganz' ? '🟦 G' : '📊 p';
 
       return `<div style="display:flex;align-items:center;gap:10px;"><div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">${grid}</div><span>${label}</span></div>`;
