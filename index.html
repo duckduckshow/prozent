@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prozent- und Zinsrechnung Trainer</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #dbe3ef;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --good: #166534;
+      --good-bg: #dcfce7;
+      --bad: #991b1b;
+      --bad-bg: #fee2e2;
+      --warn: #92400e;
+      --warn-bg: #fef3c7;
+      --shadow: 0 10px 25px rgba(0,0,0,0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #eef4ff 0%, var(--bg) 100%);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+      color: white;
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.8rem, 4vw, 2.7rem);
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 760px;
+      font-size: 1.04rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1.25fr;
+      gap: 22px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    h2, h3 {
+      margin-top: 0;
+    }
+
+    .topic-buttons,
+    .action-row,
+    .answer-row,
+    .mode-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button {
+      border: none;
+      background: var(--accent);
+      color: white;
+      padding: 12px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 700;
+      transition: transform 0.12s ease, opacity 0.12s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
+
+    button.secondary {
+      background: #e5edff;
+      color: #1e3a8a;
+    }
+
+    button.ghost {
+      background: #eef2f7;
+      color: #334155;
+    }
+
+    button.active {
+      outline: 3px solid #bfdbfe;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 12px 0 0;
+    }
+
+    .badge {
+      background: #eff6ff;
+      color: #1e40af;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .progress {
+      height: 14px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 14px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #2563eb, #60a5fa);
+      transition: width 0.3s ease;
+    }
+
+    .task-box {
+      background: #f8fbff;
+      border: 1px solid #dbeafe;
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .task-label {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .task-text {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    input[type="number"] {
+      width: min(240px, 100%);
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 2px solid #cbd5e1;
+      font-size: 1rem;
+    }
+
+    .unit {
+      font-weight: 700;
+      color: var(--muted);
+      align-self: center;
+    }
+
+    .feedback, .hint, .solution {
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-top: 14px;
+      display: none;
+    }
+
+    .feedback.good {
+      display: block;
+      background: var(--good-bg);
+      color: var(--good);
+    }
+
+    .feedback.bad {
+      display: block;
+      background: var(--bad-bg);
+      color: var(--bad);
+    }
+
+    .hint.show, .solution.show {
+      display: block;
+      background: var(--warn-bg);
+      color: var(--warn);
+    }
+
+    .formula {
+      background: #eef2ff;
+      border-left: 4px solid #4f46e5;
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+      font-weight: 700;
+    }
+
+    .mini-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .mini-item {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+      .wrap { padding: 16px; }
+      .hero { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>Prozent- und Zinsrechnung Trainer</h1>
+      <p>
+        Ein aufbauender Einseiter für Schülerinnen und Schüler: zuerst Prozentrechnung in kleinen Schritten,
+        danach Zinsrechnung mit verständlichen Übergängen. Mit Tipps, Lösungen, Punkten und zufälligen Aufgaben.
+      </p>
+    </section>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Lernweg</h2>
+        <p>Die Aufgaben werden bewusst in einer sinnvollen Reihenfolge aufgebaut.</p>
+
+        <div class="topic-buttons" id="topicButtons"></div>
+
+        <div class="badge-row">
+          <div class="badge" id="levelBadge">Thema: Prozentwert</div>
+          <div class="badge" id="scoreBadge">Punkte: 0</div>
+          <div class="badge" id="streakBadge">Serie: 0</div>
+        </div>
+
+        <div class="progress" aria-label="Lernfortschritt">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <h3 style="margin-top:20px;">Merkkasten</h3>
+        <div class="formula" id="formulaBox"></div>
+
+        <div class="mini-list" id="didacticNotes"></div>
+
+        <p class="footer-note">
+          Tipp: Bei jeder Aufgabe zuerst überlegen: <strong>Gesucht ist W, G oder p%</strong>.
+          In der Zinsrechnung heißt der Prozentwert dann meist <strong>Zinsen</strong>.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Aufgabe</h2>
+
+        <div class="mode-row" style="margin-bottom:12px;">
+          <button class="secondary active" id="normalModeBtn">Üben</button>
+          <button class="secondary" id="testModeBtn">Testmodus</button>
+        </div>
+
+        <div class="task-box">
+          <div class="task-label" id="taskLabel">Basisaufgabe</div>
+          <div class="task-text" id="taskText">Lade Aufgabe …</div>
+
+          <div class="answer-row">
+            <input id="answerInput" type="number" step="0.01" placeholder="Antwort eingeben" />
+            <div class="unit" id="unitLabel"></div>
+          </div>
+
+          <div class="action-row" style="margin-top:12px;">
+            <button id="checkBtn">Prüfen</button>
+            <button class="secondary" id="nextBtn">Nächste Aufgabe</button>
+            <button class="ghost" id="hintBtn">Tipp</button>
+            <button class="ghost" id="solutionBtn">Lösung</button>
+            <button class="ghost" id="resetBtn">Alles zurücksetzen</button>
+          </div>
+
+          <div class="feedback" id="feedbackBox"></div>
+          <div class="hint" id="hintBox"></div>
+          <div class="solution" id="solutionBox"></div>
+        </div>
+
+        <div class="mini-list">
+          <div class="mini-item"><strong>Didaktische Idee:</strong> erst einfache Prozentaufgaben, dann Preisänderungen, dann Zinsen als bekannte Prozentanwendung.</div>
+          <div class="mini-item"><strong>Für Schüler:innen wichtig:</strong> Ergebnisse bei Geld meist auf 2 Nachkommastellen runden.</div>
+          <div class="mini-item"><strong>Im Testmodus:</strong> weniger Hinweise, damit selbstständiges Arbeiten geübt wird.</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const topics = [
+      {
+        key: 'prozentwert',
+        title: '1. Prozentwert',
+        short: 'Prozentwert',
+        formula: 'W = G · p / 100',
+        notes: [
+          'Ausgangspunkt: Ein Teil von einem Ganzen wird gesucht.',
+          'Typische Frage: Wie viel sind 25 % von 80?',
+          'Gut geeignet als erster Einstieg in die Prozentrechnung.'
+        ],
+        generator: generateProzentwert
+      },
+      {
+        key: 'grundwert',
+        title: '2. Grundwert',
+        short: 'Grundwert',
+        formula: 'G = W · 100 / p',
+        notes: [
+          'Nun wird das Ganze aus einem Teil rekonstruiert.',
+          'Typische Frage: 12 sind 15 %. Wie groß ist das Ganze?',
+          'Hilft, Prozentbegriffe sicher zu unterscheiden.'
+        ],
+        generator: generateGrundwert
+      },
+      {
+        key: 'prozentsatz',
+        title: '3. Prozentsatz',
+        short: 'Prozentsatz',
+        formula: 'p = W / G · 100',
+        notes: [
+          'Jetzt wird die passende Prozentzahl selbst berechnet.',
+          'Typische Frage: 18 von 60 sind wie viel Prozent?',
+          'Wichtig für Vergleiche im Alltag.'
+        ],
+        generator: generateProzentsatz
+      },
+      {
+        key: 'veraenderung',
+        title: '4. Erhöhung & Rabatt',
+        short: 'Preisänderung',
+        formula: 'Neuer Wert = Grundwert ± Prozentwert',
+        notes: [
+          'Verknüpft Prozentrechnung mit Alltagssituationen.',
+          'Rabatt und Aufschlag stärken das Verständnis von Anwendungsaufgaben.',
+          'Hier wird auch sauberes Lesen von Textaufgaben trainiert.'
+        ],
+        generator: generateChange
+      },
+      {
+        key: 'zins',
+        title: '5. Zinsen',
+        short: 'Zinsen',
+        formula: 'Z = K · p / 100',
+        notes: [
+          'Zinsen sind ein Prozentwert vom Kapital.',
+          'Die Verbindung zur Prozentrechnung wird ausdrücklich sichtbar.',
+          'Erst einfache Jahreszinsen, dann Endkapital.'
+        ],
+        generator: generateZins
+      }
+    ];
+
+    let currentTopicIndex = 0;
+    let currentTask = null;
+    let score = 0;
+    let streak = 0;
+    let solvedCount = 0;
+    let mode = 'practice';
+
+    const topicButtons = document.getElementById('topicButtons');
+    const levelBadge = document.getElementById('levelBadge');
+    const scoreBadge = document.getElementById('scoreBadge');
+    const streakBadge = document.getElementById('streakBadge');
+    const progressBar = document.getElementById('progressBar');
+    const formulaBox = document.getElementById('formulaBox');
+    const didacticNotes = document.getElementById('didacticNotes');
+    const taskLabel = document.getElementById('taskLabel');
+    const taskText = document.getElementById('taskText');
+    const unitLabel = document.getElementById('unitLabel');
+    const answerInput = document.getElementById('answerInput');
+    const feedbackBox = document.getElementById('feedbackBox');
+    const hintBox = document.getElementById('hintBox');
+    const solutionBox = document.getElementById('solutionBox');
+    const normalModeBtn = document.getElementById('normalModeBtn');
+    const testModeBtn = document.getElementById('testModeBtn');
+
+    function randInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function round2(n) {
+      return Math.round((n + Number.EPSILON) * 100) / 100;
+    }
+
+    function isCorrect(user, solution) {
+      return Math.abs(user - solution) < 0.01;
+    }
+
+    function renderTopicButtons() {
+      topicButtons.innerHTML = '';
+      topics.forEach((topic, index) => {
+        const btn = document.createElement('button');
+        btn.textContent = topic.title;
+        btn.className = index === currentTopicIndex ? 'active' : 'secondary';
+        btn.addEventListener('click', () => {
+          currentTopicIndex = index;
+          renderAll();
+          newTask();
+        });
+        topicButtons.appendChild(btn);
+      });
+    }
+
+    function renderSidebar() {
+      const topic = topics[currentTopicIndex];
+      levelBadge.textContent = 'Thema: ' + topic.short;
+      scoreBadge.textContent = 'Punkte: ' + score;
+      streakBadge.textContent = 'Serie: ' + streak;
+      formulaBox.textContent = topic.formula;
+      didacticNotes.innerHTML = topic.notes.map(note => `<div class="mini-item">${note}</div>`).join('');
+      progressBar.style.width = ((currentTopicIndex + 1) / topics.length) * 100 + '%';
+      renderTopicButtons();
+    }
+
+    function showFeedback(type, message) {
+      feedbackBox.className = 'feedback ' + type;
+      feedbackBox.textContent = message;
+    }
+
+    function clearMessages() {
+      feedbackBox.className = 'feedback';
+      feedbackBox.textContent = '';
+      hintBox.className = 'hint';
+      hintBox.textContent = '';
+      solutionBox.className = 'solution';
+      solutionBox.innerHTML = '';
+    }
+
+    function newTask() {
+      clearMessages();
+      answerInput.value = '';
+      const topic = topics[currentTopicIndex];
+      currentTask = topic.generator();
+      taskLabel.textContent = currentTask.label;
+      taskText.textContent = currentTask.text;
+      unitLabel.textContent = currentTask.unit || '';
+      answerInput.focus();
+    }
+
+    function checkAnswer() {
+      const value = Number(answerInput.value.replace(',', '.'));
+      if (Number.isNaN(value)) {
+        showFeedback('bad', 'Bitte zuerst eine Zahl eingeben.');
+        return;
+      }
+
+      if (isCorrect(value, currentTask.answer)) {
+        score += 1;
+        streak += 1;
+        solvedCount += 1;
+        showFeedback('good', currentTask.success || 'Richtig!');
+
+        if (solvedCount % 4 === 0 && currentTopicIndex < topics.length - 1) {
+          currentTopicIndex += 1;
+          renderAll();
+          showFeedback('good', 'Richtig! Du steigst jetzt zum nächsten Thema auf.');
+          setTimeout(newTask, 350);
+          return;
+        }
+      } else {
+        streak = 0;
+        const exact = Number.isInteger(currentTask.answer) ? currentTask.answer : currentTask.answer.toFixed(2);
+        showFeedback('bad', `Noch nicht richtig. Dein Ergebnis passt nicht. ${mode === 'test' ? '' : 'Überlege noch einmal, was gesucht ist.'}`.trim());
+        if (mode === 'test') {
+          solutionBox.className = 'solution show';
+          solutionBox.innerHTML = `<strong>Richtige Lösung:</strong> ${exact} ${currentTask.unit || ''}`;
+        }
+      }
+      renderSidebar();
+    }
+
+    function showHint() {
+      if (mode === 'test') {
+        hintBox.className = 'hint show';
+        hintBox.textContent = 'Im Testmodus sind Hinweise absichtlich knapp gehalten. Denke an die passende Grundformel.';
+        return;
+      }
+      hintBox.className = 'hint show';
+      hintBox.textContent = currentTask.hint;
+    }
+
+    function showSolution() {
+      solutionBox.className = 'solution show';
+      solutionBox.innerHTML = currentTask.solution;
+    }
+
+    function resetAll() {
+      currentTopicIndex = 0;
+      score = 0;
+      streak = 0;
+      solvedCount = 0;
+      renderAll();
+      newTask();
+    }
+
+    function renderAll() {
+      renderSidebar();
+      normalModeBtn.classList.toggle('active', mode === 'practice');
+      testModeBtn.classList.toggle('active', mode === 'test');
+    }
+
+    function generateProzentwert() {
+      const G = randInt(20, 200);
+      const pChoices = [5, 10, 20, 25, 50, 75];
+      const p = pChoices[randInt(0, pChoices.length - 1)];
+      const W = round2(G * p / 100);
+      return {
+        label: 'Basisaufgabe',
+        text: `Berechne ${p} % von ${G}.`,
+        unit: '',
+        answer: W,
+        hint: 'Gesucht ist der Prozentwert W. Rechne: Grundwert · Prozentsatz ÷ 100.',
+        solution: `<strong>Rechnung:</strong><br>${G} · ${p} ÷ 100 = ${W}`,
+        success: 'Richtig! Du hast den Prozentwert berechnet.'
+      };
+    }
+
+    function generateGrundwert() {
+      const pChoices = [5, 10, 20, 25, 50];
+      const p = pChoices[randInt(0, pChoices.length - 1)];
+      const G = randInt(4, 30) * 10;
+      const W = round2(G * p / 100);
+      return {
+        label: 'Aufbauaufgabe',
+        text: `${W} sind ${p} % von einer Zahl. Wie groß ist der Grundwert?`,
+        unit: '',
+        answer: G,
+        hint: 'Gesucht ist das Ganze. Teile zuerst durch den Prozentsatz und rechne dann auf 100 % hoch.',
+        solution: `<strong>Rechnung:</strong><br>G = ${W} · 100 ÷ ${p} = ${G}`,
+        success: 'Richtig! Du hast den Grundwert gefunden.'
+      };
+    }
+
+    function generateProzentsatz() {
+      const G = randInt(4, 25) * 10;
+      const pChoices = [5, 10, 20, 25, 50, 75];
+      const p = pChoices[randInt(0, pChoices.length - 1)];
+      const W = round2(G * p / 100);
+      return {
+        label: 'Aufbauaufgabe',
+        text: `${W} von ${G} sind wie viel Prozent?`,
+        unit: '%',
+        answer: p,
+        hint: 'Gesucht ist p%. Teile Teil durch Ganzes und multipliziere mit 100.',
+        solution: `<strong>Rechnung:</strong><br>p = ${W} ÷ ${G} · 100 = ${p} %`,
+        success: 'Richtig! Du hast den Prozentsatz berechnet.'
+      };
+    }
+
+    function generateChange() {
+      const base = randInt(20, 180);
+      const pChoices = [10, 20, 25, 30, 50];
+      const p = pChoices[randInt(0, pChoices.length - 1)];
+      const isDiscount = Math.random() < 0.5;
+      const amount = round2(base * p / 100);
+      const result = round2(isDiscount ? base - amount : base + amount);
+      return {
+        label: 'Anwendungsaufgabe',
+        text: isDiscount
+          ? `Ein Rucksack kostet ${base} €. Er wird um ${p} % billiger. Wie viel kostet er danach?`
+          : `Ein Fahrrad kostet ${base} €. Der Preis steigt um ${p} %. Wie viel kostet es danach?`,
+        unit: '€',
+        answer: result,
+        hint: isDiscount
+          ? 'Berechne zuerst den Rabatt als Prozentwert und ziehe ihn dann vom alten Preis ab.'
+          : 'Berechne zuerst die Erhöhung als Prozentwert und addiere sie dann zum alten Preis.',
+        solution: isDiscount
+          ? `<strong>Rechnung:</strong><br>Rabatt = ${base} · ${p} ÷ 100 = ${amount} €<br>Neuer Preis = ${base} € − ${amount} € = ${result} €`
+          : `<strong>Rechnung:</strong><br>Erhöhung = ${base} · ${p} ÷ 100 = ${amount} €<br>Neuer Preis = ${base} € + ${amount} € = ${result} €`,
+        success: 'Richtig! Du hast die Preisänderung korrekt berechnet.'
+      };
+    }
+
+    function generateZins() {
+      const capital = randInt(1, 20) * 100;
+      const pChoices = [1, 2, 3, 4, 5];
+      const p = pChoices[randInt(0, pChoices.length - 1)];
+      const useEndCapital = Math.random() < 0.5;
+      const zins = round2(capital * p / 100);
+      const endkapital = round2(capital + zins);
+
+      if (!useEndCapital) {
+        return {
+          label: 'Zinsaufgabe',
+          text: `Ein Kapital von ${capital} € wird ein Jahr lang mit ${p} % verzinst. Wie viel Zinsen erhält man?`,
+          unit: '€',
+          answer: zins,
+          hint: 'Zinsen sind ein Prozentwert vom Kapital.',
+          solution: `<strong>Rechnung:</strong><br>Z = ${capital} · ${p} ÷ 100 = ${zins} €`,
+          success: 'Richtig! Du hast die Jahreszinsen berechnet.'
+        };
+      }
+
+      return {
+        label: 'Zinsaufgabe',
+        text: `Auf einem Konto liegen ${capital} €. Der Zinssatz beträgt ${p} % pro Jahr. Wie groß ist das Endkapital nach einem Jahr?`,
+        unit: '€',
+        answer: endkapital,
+        hint: 'Berechne zuerst die Zinsen und addiere sie dann zum Kapital.',
+        solution: `<strong>Rechnung:</strong><br>Z = ${capital} · ${p} ÷ 100 = ${zins} €<br>Endkapital = ${capital} € + ${zins} € = ${endkapital} €`,
+        success: 'Richtig! Du hast das Endkapital bestimmt.'
+      };
+    }
+
+    document.getElementById('checkBtn').addEventListener('click', checkAnswer);
+    document.getElementById('nextBtn').addEventListener('click', newTask);
+    document.getElementById('hintBtn').addEventListener('click', showHint);
+    document.getElementById('solutionBtn').addEventListener('click', showSolution);
+    document.getElementById('resetBtn').addEventListener('click', resetAll);
+    normalModeBtn.addEventListener('click', () => {
+      mode = 'practice';
+      renderAll();
+    });
+    testModeBtn.addEventListener('click', () => {
+      mode = 'test';
+      renderAll();
+    });
+
+    answerInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') checkAnswer();
+    });
+
+    renderAll();
+    newTask();
+  </script>
+</body>
+</html>
