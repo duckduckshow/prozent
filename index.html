@@ -529,8 +529,19 @@
             const index = r * 10 + c;
             const fill = indices.includes(index) ? color : 'rgba(255,255,255,0.2)';
 
+            /* nur horizontale Mittellinie dicker */
             const borderRight = '1px';
             const borderBottom = r === 4 ? '2px' : '1px';
+
+            cells.push(`
+              <div style="
+                background:${fill};
+                border-right:${borderRight} solid rgba(0,0,0,0.35);
+                border-bottom:${borderBottom} solid rgba(0,0,0,0.35);
+              "></div>
+            `);
+          }
+        }ale Mittellinie immer dicker */
 
             cells.push(`
               <div style="
