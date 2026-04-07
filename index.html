@@ -426,9 +426,9 @@
         purpose: {
           title: 'Wozu brauche ich das?',
           points: [
-            'Beim Einkaufen: 25 % Rabatt berechnen.',
-            'Bei Tests: Wie viele Aufgaben richtig sind.',
-            'Bei Statistiken: Ein Teil von vielen berechnen.'
+            'Rabatte berechnen.',
+            'Anteile verstehen.',
+            'Teil von etwas berechnen.'
           ]
         },
         generator: generateProzentwert
@@ -438,13 +438,13 @@
         title: '2. Grundwert',
         short: 'Grundwert',
         formula: 'G = W · 100 / p',
-        summary: 'Du kennst einen Teil und suchst das Ganze.',
+        summary: 'Du suchst das Ganze.',
         purpose: {
           title: 'Wozu brauche ich das?',
           points: [
-            'Du kennst den Rabatt und suchst den alten Preis.',
-            'Du kennst einen Teil und suchst die Gesamtzahl.',
-            'Du rechnest von einem Teil zurück auf das Ganze.'
+            'Alter Preis berechnen.',
+            'Gesamtzahl finden.',
+            'Vom Teil zurück rechnen.'
           ]
         },
         generator: generateGrundwert
@@ -452,59 +452,50 @@
       {
         key: 'prozentsatz',
         title: '3. Prozentsatz',
-        short: 'Prozentsatz',
+        short: 'Prozent',
         formula: 'p = W / G · 100',
         summary: 'Du vergleichst Teil und Ganzes.',
         purpose: {
           title: 'Wozu brauche ich das?',
           points: [
-            'Vergleichen von Ergebnissen.',
-            'Wie stark ist etwas billiger geworden?',
-            'Prozentangaben im Alltag verstehen.'
+            'Vergleichen.',
+            'Preisänderungen verstehen.',
+            'Prozent lesen.'
           ]
         },
         generator: generateProzentsatz
       },
       {
-        key: 'veraenderung',
-        title: '4. Rabatt & Erhöhung',
-        short: 'Preisänderung',
-        formula: 'Neuer Wert = Grundwert ± Prozentwert',
-        summary: 'Preise werden billiger oder teurer.',
-        purpose: {
-          title: 'Wozu brauche ich das?',
-          points: [
-            'Rabatte beim Einkaufen verstehen.',
-            'Preissteigerungen nachvollziehen.',
-            'Angebote richtig vergleichen.'
-          ]
-        },
-        generator: generateChange
-      },
-      {
         key: 'zins',
-        title: '5. Zinsrechnung',
-        short: 'Zinsrechnung',
+        title: '4. Zinsen',
+        short: 'Zinsen',
         formula: 'Z = K · p / 100',
-        summary: 'Geld wird durch Zinsen mehr.',
+        summary: 'Geld wird mehr.',
         purpose: {
           title: 'Wozu brauche ich das?',
           points: [
-            'Sparen auf dem Konto verstehen.',
-            'Kredite besser einschätzen.',
-            'Sehen, wie Geld wächst.'
+            'Sparen verstehen.',
+            'Kredite verstehen.',
+            'Geld wächst.'
           ]
         },
         generator: generateZins
       }
     ];
 
+    const typeConfig = {
+      teil: { icon: '🧩', text: 'Teil' },
+      ganz: { icon: '🟦', text: 'Ganzes' },
+      prozent: { icon: '📊', text: 'Prozent' }
+    }
+
+    let difficulty = 0;
+    let solved = 0;
+
     let currentTopicIndex = 0;
     let currentTask = null;
     let score = 0;
     let streak = 0;
-    let solvedCount = 0;
-    let mode = 'practice';
 
     const topicButtons = document.getElementById('topicButtons');
     const levelBadge = document.getElementById('levelBadge');
@@ -515,276 +506,135 @@
     const topicSummary = document.getElementById('topicSummary');
     const taskLabel = document.getElementById('taskLabel');
     const taskText = document.getElementById('taskText');
+    const taskType = document.getElementById('taskType');
     const unitLabel = document.getElementById('unitLabel');
     const answerInput = document.getElementById('answerInput');
     const feedbackBox = document.getElementById('feedbackBox');
     const hintBox = document.getElementById('hintBox');
     const solutionBox = document.getElementById('solutionBox');
     const purposeBox = document.getElementById('purposeBox');
-    const normalModeBtn = document.getElementById('normalModeBtn');
-    const testModeBtn = document.getElementById('testModeBtn');
 
     function randInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     function round2(n) {
-      return Math.round((n + Number.EPSILON) * 100) / 100;
-    }
-
-    function isCorrect(user, solution) {
-      return Math.abs(user - solution) < 0.01;
-    }
-
-    function renderTopicButtons() {
-      topicButtons.innerHTML = '';
-      topics.forEach((topic, index) => {
-        const btn = document.createElement('button');
-        btn.textContent = topic.title;
-        btn.className = 'topic-btn' + (index === currentTopicIndex ? ' active' : '');
-        btn.addEventListener('click', () => {
-          currentTopicIndex = index;
-          renderAll();
-          newTask();
-        });
-        topicButtons.appendChild(btn);
-      });
-    }
-
-    function renderSidebar() {
-      const topic = topics[currentTopicIndex];
-      levelBadge.textContent = topic.short;
-      scoreBadge.textContent = score;
-      streakBadge.textContent = streak;
-      formulaBox.textContent = topic.formula;
-      topicSummary.textContent = topic.summary;
-      progressBar.style.width = ((currentTopicIndex + 1) / topics.length) * 100 + '%';
-      renderTopicButtons();
-    }
-
-    function clearMessages() {
-      feedbackBox.className = 'feedback';
-      feedbackBox.textContent = '';
-      hintBox.className = 'hint';
-      hintBox.textContent = '';
-      solutionBox.className = 'solution';
-      solutionBox.innerHTML = '';
-      purposeBox.className = 'purpose-box';
-      purposeBox.innerHTML = '';
-    }
-
-    function showFeedback(type, message) {
-      feedbackBox.className = 'feedback ' + type;
-      feedbackBox.textContent = message;
+      return Math.round(n * 100) / 100;
     }
 
     function newTask() {
-      clearMessages();
-      answerInput.value = '';
+      if (solved > 4) difficulty = 1;
+      if (solved > 8) difficulty = 2;
+
       const topic = topics[currentTopicIndex];
       currentTask = topic.generator();
-      taskLabel.textContent = currentTask.label;
+
       taskText.textContent = currentTask.text;
+      taskLabel.textContent = currentTask.label;
+
+      const type = typeConfig[currentTask.type];
+      taskType.textContent = `${type.icon} Gesucht: ${type.text}`;
+
       unitLabel.textContent = currentTask.unit || '';
-      answerInput.focus();
+
+      answerInput.value = '';
     }
 
     function checkAnswer() {
-      const value = Number(String(answerInput.value).replace(',', '.'));
-      if (Number.isNaN(value)) {
-        showFeedback('bad', 'Bitte zuerst eine Zahl eingeben.');
-        return;
-      }
-
-      if (isCorrect(value, currentTask.answer)) {
-        score += 1;
-        streak += 1;
-        solvedCount += 1;
-        showFeedback('good', currentTask.success || 'Richtig!');
-
-        if (solvedCount % 4 === 0 && currentTopicIndex < topics.length - 1) {
-          currentTopicIndex += 1;
-          renderAll();
-          showFeedback('good', 'Richtig. Du wechselst jetzt zum nächsten Thema.');
-          setTimeout(newTask, 350);
-          return;
-        }
+      const val = Number(answerInput.value);
+      if (Math.abs(val - currentTask.answer) < 0.01) {
+        score++;
+        streak++;
+        solved++;
+        feedbackBox.className = 'feedback good';
+        feedbackBox.textContent = 'Richtig';
       } else {
         streak = 0;
-        showFeedback('bad', mode === 'test' ? 'Noch nicht richtig.' : 'Noch nicht richtig. Überlege noch einmal, was gesucht ist.');
-        if (mode === 'test') {
-          const exact = Number.isInteger(currentTask.answer) ? currentTask.answer : currentTask.answer.toFixed(2);
-          solutionBox.className = 'solution show';
-          solutionBox.innerHTML = `<strong>Richtige Zeig Lösung:</strong> ${exact} ${currentTask.unit || ''}`;
-        }
+        feedbackBox.className = 'feedback bad';
+        feedbackBox.textContent = 'Nicht richtig';
       }
 
-      renderSidebar();
-    }
-
-    function showHint() {
-      hintBox.className = 'hint show';
-      hintBox.textContent = mode === 'test'
-        ? 'Im Test sind Hinweise bewusst kurz. Denke an die passende Formel.'
-        : currentTask.hint;
-    }
-
-    function showSolution() {
-      solutionBox.className = 'solution show';
-      solutionBox.innerHTML = currentTask.solution;
-    }
-
-    function showPurpose() {
-      const topic = topics[currentTopicIndex];
-      purposeBox.className = 'purpose-box show';
-      purposeBox.innerHTML = `
-        <strong>${topic.purpose.title}</strong>
-        <ul>
-          ${topic.purpose.points.map(point => `<li>${point}</li>`).join('')}
-        </ul>
-      `;
-    }
-
-    function resetAll() {
-      currentTopicIndex = 0;
-      score = 0;
-      streak = 0;
-      solvedCount = 0;
-      renderAll();
-      newTask();
-    }
-
-    function renderAll() {
-      renderSidebar();
-      normalModeBtn.classList.toggle('active', mode === 'practice');
-      testModeBtn.classList.toggle('active', mode === 'test');
+      scoreBadge.textContent = score;
+      streakBadge.textContent = streak;
     }
 
     function generateProzentwert() {
-      const G = randInt(20, 200);
-      const pChoices = [5, 10, 20, 25, 50, 75];
-      const p = pChoices[randInt(0, pChoices.length - 1)];
-      const W = round2(G * p / 100);
+      if (difficulty === 0) {
+        const G = [20,40,50,80,100][randInt(0,4)];
+        const p = [10,25,50][randInt(0,2)];
+        return {
+          type:'teil',
+          label:'Kopf',
+          text:`${p}% von ${G}`,
+          answer: round2(G*p/100)
+        }
+      }
+
+      if (difficulty === 1) {
+        const G = randInt(20,200);
+        const p = randInt(5,50);
+        return {
+          type:'teil',
+          label:'Einfach',
+          text:`${p}% von ${G}`,
+          answer: round2(G*p/100)
+        }
+      }
+
+      const G = randInt(50,400);
+      const p = randInt(3,37);
       return {
-        label: 'Basisaufgabe',
-        text: `Berechne ${p} % von ${G}.`,
-        unit: '',
-        answer: W,
-        hint: 'Gesucht ist der Prozentwert. Rechne: Grundwert · Prozentsatz ÷ 100.',
-        solution: `<strong>Rechnung:</strong><br>${G} · ${p} ÷ 100 = ${W}`,
-        success: 'Richtig.'
-      };
+        type:'teil',
+        label:'Text',
+        text:`Berechne ${p}% von ${G}`,
+        answer: round2(G*p/100)
+      }
     }
 
     function generateGrundwert() {
-      const pChoices = [5, 10, 20, 25, 50];
-      const p = pChoices[randInt(0, pChoices.length - 1)];
-      const G = randInt(4, 30) * 10;
-      const W = round2(G * p / 100);
+      const G = [40,50,80,100][randInt(0,3)];
+      const p = [10,20,25,50][randInt(0,3)];
+      const W = round2(G*p/100);
       return {
-        label: 'Aufbauaufgabe',
-        text: `${W} sind ${p} % von einer Zahl. Wie groß ist der Grundwert?`,
-        unit: '',
-        answer: G,
-        hint: 'Gesucht ist das Ganze. Rechne den Teil auf 100 % hoch.',
-        solution: `<strong>Rechnung:</strong><br>G = ${W} · 100 ÷ ${p} = ${G}`,
-        success: 'Richtig.'
-      };
+        type:'ganz',
+        label:'Kopf',
+        text:`${W} sind ${p}% von ?`,
+        answer:G
+      }
     }
 
     function generateProzentsatz() {
-      const G = randInt(4, 25) * 10;
-      const pChoices = [5, 10, 20, 25, 50, 75];
-      const p = pChoices[randInt(0, pChoices.length - 1)];
-      const W = round2(G * p / 100);
+      const G = [40,50,80,100][randInt(0,3)];
+      const p = [10,20,25,50][randInt(0,3)];
+      const W = round2(G*p/100);
       return {
-        label: 'Aufbauaufgabe',
-        text: `${W} von ${G} sind wie viel Prozent?`,
-        unit: '%',
-        answer: p,
-        hint: 'Teile den Teil durch das Ganze und multipliziere mit 100.',
-        solution: `<strong>Rechnung:</strong><br>p = ${W} ÷ ${G} · 100 = ${p} %`,
-        success: 'Richtig.'
-      };
-    }
-
-    function generateChange() {
-      const base = randInt(20, 180);
-      const pChoices = [10, 20, 25, 30, 50];
-      const p = pChoices[randInt(0, pChoices.length - 1)];
-      const isDiscount = Math.random() < 0.5;
-      const amount = round2(base * p / 100);
-      const result = round2(isDiscount ? base - amount : base + amount);
-      return {
-        label: 'Anwendungsaufgabe',
-        text: isDiscount
-          ? `Ein Rucksack kostet ${base} €. Er wird um ${p} % billiger. Wie viel kostet er danach?`
-          : `Ein Fahrrad kostet ${base} €. Der Preis steigt um ${p} %. Wie viel kostet es danach?`,
-        unit: '€',
-        answer: result,
-        hint: isDiscount
-          ? 'Zuerst Rabatt berechnen. Dann abziehen.'
-          : 'Zuerst Prozent berechnen. Dann dazurechnen.',
-        solution: isDiscount
-          ? `<strong>Rechnung:</strong><br>Rabatt = ${base} · ${p} ÷ 100 = ${amount} €<br>Neuer Preis = ${base} € − ${amount} € = ${result} €`
-          : `<strong>Rechnung:</strong><br>Erhöhung = ${base} · ${p} ÷ 100 = ${amount} €<br>Neuer Preis = ${base} € + ${amount} € = ${result} €`,
-        success: 'Richtig.'
-      };
+        type:'prozent',
+        label:'Kopf',
+        text:`${W} von ${G} = ? %`,
+        answer:p
+      }
     }
 
     function generateZins() {
-      const capital = randInt(1, 20) * 100;
-      const pChoices = [1, 2, 3, 4, 5];
-      const p = pChoices[randInt(0, pChoices.length - 1)];
-      const useEndCapital = Math.random() < 0.5;
-      const zins = round2(capital * p / 100);
-      const endkapital = round2(capital + zins);
-
-      if (!useEndCapital) {
-        return {
-          label: 'Zinsaufgabe',
-          text: `Ein Kapital von ${capital} € wird ein Jahr lang mit ${p} % verzinst. Wie viel Zinsen erhält man?`,
-          unit: '€',
-          answer: zins,
-          hint: 'Zinsen sind ein Prozentwert vom Kapital.',
-          solution: `<strong>Rechnung:</strong><br>Z = ${capital} · ${p} ÷ 100 = ${zins} €`,
-          success: 'Richtig.'
-        };
-      }
-
+      const K = [100,200,500][randInt(0,2)];
+      const p = [1,2,5][randInt(0,2)];
       return {
-        label: 'Zinsaufgabe',
-        text: `Auf einem Konto liegen ${capital} €. Der Zinssatz beträgt ${p} % pro Jahr. Wie groß ist das Endkapital nach einem Jahr?`,
-        unit: '€',
-        answer: endkapital,
-        hint: 'Berechne zuerst die Zinsen und addiere sie dann zum Kapital.',
-        solution: `<strong>Rechnung:</strong><br>Z = ${capital} · ${p} ÷ 100 = ${zins} €<br>Endkapital = ${capital} € + ${zins} € = ${endkapital} €`,
-        success: 'Richtig.'
-      };
+        type:'teil',
+        label:'Kopf',
+        text:`${p}% von ${K} €`,
+        unit:'€',
+        answer:round2(K*p/100)
+      }
     }
 
     document.getElementById('checkBtn').addEventListener('click', checkAnswer);
     document.getElementById('nextBtn').addEventListener('click', newTask);
-    document.getElementById('hintBtn').addEventListener('click', showHint);
-    document.getElementById('solutionBtn').addEventListener('click', showSolution);
-    document.getElementById('purposeBtn').addEventListener('click', showPurpose);
-    document.getElementById('resetBtn').addEventListener('click', resetAll);
-
-    normalModeBtn.addEventListener('click', () => {
-      mode = 'practice';
-      renderAll();
+    document.getElementById('purposeBtn').addEventListener('click', ()=>{
+      const topic = topics[currentTopicIndex];
+      purposeBox.className='purpose-box show';
+      purposeBox.innerHTML = topic.purpose.points.join('<br>');
     });
 
-    testModeBtn.addEventListener('click', () => {
-      mode = 'test';
-      renderAll();
-    });
-
-    answerInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') checkAnswer();
-    });
-
-    renderAll();
     newTask();
   </script>
 </body>
