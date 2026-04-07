@@ -21,7 +21,6 @@
       --hint-bg: #fef3c7;
       --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
       --radius-lg: 22px;
-      --radius-md: 16px;
     }
     * { box-sizing: border-box; }
     body {
@@ -89,13 +88,7 @@
     .btn.ghost { background: #eef2f7; color: #334155; }
     .btn.active { outline: 3px solid #bfdbfe; }
     .exercise-card { background: var(--soft); border: 1px solid #dbeafe; border-radius: 22px; padding: 24px; }
-    .task-meta { color: var(--muted); font-size: 0.95rem; font-weight: 700; margin-bottom: 10px; }
-    .task-type {
-      margin-bottom: 12px;
-      min-height: 26px;
-      transform: scale(1.3);
-      transform-origin: left center;
-    }
+    .task-type { margin-bottom: 12px; min-height: 40px; transform: scale(1.15); transform-origin: left center; }
     .task-text { font-size: clamp(1.15rem, 2.4vw, 1.5rem); font-weight: 700; margin-bottom: 22px; }
     .answer-box { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
     input[type="number"] {
@@ -208,6 +201,17 @@
     </div>
   </div>
 
+  <div id="introOverlay" style="position:fixed;inset:0;background:white;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:20px;">
+    <div id="introStage" style="width:260px;height:180px;position:relative;"></div>
+    <div id="introText" style="font-weight:700;font-size:1.1rem;min-height:1.5em;"></div>
+    <div style="display:flex;gap:12px;align-items:center;">
+      <button id="skipIntro" class="btn secondary" type="button">Überspringen</button>
+      <label style="font-size:0.9rem;color:#64748b">
+        <input type="checkbox" id="dontShowIntro"> Nicht mehr anzeigen
+      </label>
+    </div>
+  </div>
+
   <script>
     const topics = [
       {
@@ -291,19 +295,19 @@
       return 2;
     }
 
-    function renderType(type, value) {
-      const gray = '#ffffff';
-      const line = '#111827';
+    function renderType(type, percentValue) {
+      const white = '#ffffff';
+      const dark = '#111827';
       const green = '#22c55e';
       const blue = '#3b82f6';
 
-      if (type === 'teil' && typeof value === 'number') {
-        const filled = Math.max(0, Math.min(100, Math.round(value)));
+      if (type === 'teil') {
+        const filled = Math.max(0, Math.min(100, Math.round(percentValue)));
         const cells = Array.from({ length: 100 }, (_, i) =>
-          `<div style="width:7px;height:7px;background:${i < filled ? green : gray};"></div>`
+          `<div style="width:7px;height:7px;background:${i < filled ? green : white};"></div>`
         ).join('');
         return `<div style="display:flex;align-items:center;gap:10px;">
-          <div style="display:grid;grid-template-columns:repeat(10,7px);gap:1px;background:${line};padding:1px;border-radius:2px;">
+          <div style="display:grid;grid-template-columns:repeat(10,7px);gap:1px;background:${dark};padding:1px;border-radius:2px;">
             ${cells}
           </div>
           <span>🧩 W</span>
@@ -311,9 +315,9 @@
       }
 
       if (type === 'prozent') {
-        const cells = Array.from({ length: 9 }, () => `<div style="width:12px;height:12px;background:${gray};"></div>`).join('');
+        const cells = Array.from({ length: 9 }, () => `<div style="width:12px;height:12px;background:${white};"></div>`).join('');
         return `<div style="display:flex;align-items:center;gap:10px;">
-          <div style="display:grid;grid-template-columns:repeat(3,12px);gap:1px;background:${line};padding:1px;border-radius:2px;">
+          <div style="display:grid;grid-template-columns:repeat(3,12px);gap:1px;background:${dark};padding:1px;border-radius:2px;">
             ${cells}
           </div>
           <span>📊 p</span>
@@ -322,7 +326,7 @@
 
       const cells = Array.from({ length: 9 }, () => `<div style="width:12px;height:12px;background:${blue};"></div>`).join('');
       return `<div style="display:flex;align-items:center;gap:10px;">
-        <div style="display:grid;grid-template-columns:repeat(3,12px);gap:1px;background:${line};padding:1px;border-radius:2px;">
+        <div style="display:grid;grid-template-columns:repeat(3,12px);gap:1px;background:${dark};padding:1px;border-radius:2px;">
           ${cells}
         </div>
         <span>🟦 G</span>
@@ -369,7 +373,7 @@
     function newTask() {
       clearMessages();
       currentTask = topics[currentTopicIndex].generator(difficultyLevel());
-      taskType.innerHTML = renderType(currentTask.type, currentTask.percent ?? currentTask.visualValue ?? currentTask.answer);
+      taskType.innerHTML = renderType(currentTask.type, currentTask.percent ?? currentTask.answer);
       taskText.textContent = currentTask.text;
       unitLabel.textContent = currentTask.unit || '';
       answerInput.value = '';
@@ -401,7 +405,6 @@
           solutionBox.innerHTML = `<strong>Richtig:</strong> ${currentTask.answer}${currentTask.unit ? ' ' + currentTask.unit : ''}`;
         }
       }
-
       renderSidebar();
     }
 
@@ -446,18 +449,18 @@
         const G = randChoice([20, 40, 50, 80, 100]);
         const p = randChoice([10, 25, 50]);
         const W = round2((G * p) / 100);
-        return { type: 'teil', text: `${p} % von ${G}${context}`, unit: '', answer: W, percent: p, visualValue: W, hint: 'Teil von etwas suchen.', solution: `${G} · ${p} ÷ 100 = ${W}` };
+        return { type: 'teil', text: `${p} % von ${G}${context}`, unit: '', answer: W, percent: p, hint: 'Teil von etwas suchen.', solution: `${G} · ${p} ÷ 100 = ${W}` };
       }
       if (level === 1) {
         const G = randInt(20, 200);
         const p = randChoice([5, 10, 20, 25, 50]);
         const W = round2((G * p) / 100);
-        return { type: 'teil', text: `${p} % von ${G}${context}`, unit: '', answer: W, percent: p, visualValue: W, hint: 'Mit 100 teilen.', solution: `${G} · ${p} ÷ 100 = ${W}` };
+        return { type: 'teil', text: `${p} % von ${G}${context}`, unit: '', answer: W, percent: p, hint: 'Mit 100 teilen.', solution: `${G} · ${p} ÷ 100 = ${W}` };
       }
       const G = randInt(50, 300);
       const p = randInt(3, 40);
       const W = round2((G * p) / 100);
-      return { type: 'teil', text: `Berechne ${p} % von ${G}${context}.`, unit: '', answer: W, visualValue: W, hint: 'W ist der Teil.', solution: `${G} · ${p} ÷ 100 = ${W}` };
+      return { type: 'teil', text: `Berechne ${p} % von ${G}${context}.`, unit: '', answer: W, percent: p, hint: 'W ist der Teil.', solution: `${G} · ${p} ÷ 100 = ${W}` };
     }
 
     function generateGrundwert(level) {
@@ -491,12 +494,12 @@
         const K = randChoice([100, 200, 500]);
         const p = randChoice([1, 2, 5]);
         const Z = round2((K * p) / 100);
-        return { type: 'teil', text: `${p} % von ${K} €`, unit: '€', answer: Z, percent: p, visualValue: Z, hint: 'Zinsen sind der Teil.', solution: `${K} · ${p} ÷ 100 = ${Z} €` };
+        return { type: 'teil', text: `${p} % von ${K} €`, unit: '€', answer: Z, percent: p, hint: 'Zinsen sind der Teil.', solution: `${K} · ${p} ÷ 100 = ${Z} €` };
       }
       const K = randInt(1, 20) * 100;
       const p = randChoice([1, 2, 3, 4, 5]);
       const Z = round2((K * p) / 100);
-      return { type: 'teil', text: `${p} % Zinsen von ${K} €`, unit: '€', answer: Z, visualValue: Z, hint: 'Wie bei Prozentwert.', solution: `${K} · ${p} ÷ 100 = ${Z} €` };
+      return { type: 'teil', text: `${p} % Zinsen von ${K} €`, unit: '€', answer: Z, percent: p, hint: 'Wie bei Prozentwert.', solution: `${K} · ${p} ÷ 100 = ${Z} €` };
     }
 
     document.getElementById('checkBtn').addEventListener('click', checkAnswer);
@@ -515,209 +518,84 @@
       const text = document.getElementById('introText');
       const skipBtn = document.getElementById('skipIntro');
       const dontShow = document.getElementById('dontShowIntro');
-
-      if (!overlay || !stage || !text) return;
+      if (!overlay || !stage || !text || !skipBtn || !dontShow) return;
       if (localStorage.getItem('skipPercentIntro') === 'true') {
         overlay.style.display = 'none';
         return;
       }
 
-      function renderGrid(indices = [], color = '#3b82f6') {
-        const cells = [];
-        for (let r = 0; r < 10; r++) {
-          for (let c = 0; c < 10; c++) {
-            const index = r * 10 + c;
-            const fill = indices.includes(index) ? color : 'rgba(255,255,255,0.2)';
-
-            /* nur horizontale Mittellinie dicker */
-            const borderRight = '1px';
-            const borderBottom = r === 4 ? '2px' : '1px';
-
-            cells.push(`
-              <div style="
-                background:${fill};
-                border-right:${borderRight} solid rgba(0,0,0,0.35);
-                border-bottom:${borderBottom} solid rgba(0,0,0,0.35);
-              "></div>
-            `);
-          }
-        }(`
-              <div style="
-                background:${fill};
-                border-right:${borderRight} solid rgba(0,0,0,0.35);
-                border-bottom:${borderBottom} solid rgba(0,0,0,0.35);
-              "></div>
-            `);
-          }
-        }
-
-        stage.innerHTML = `
-          <div style="position:relative;width:100%;height:100%;background:#16a34a;border-radius:8px;overflow:hidden;">
-            <div style="position:absolute;inset:0;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);">
-              ${cells.join('')}
-            </div>
-            <div style="position:absolute;left:50%;top:0;bottom:0;width:2px;background:white;"></div>
-            <div style="position:absolute;left:50%;top:50%;width:40px;height:40px;border:2px solid white;border-radius:50%;transform:translate(-50%,-50%);"></div>
-          </div>`;
+      const timers = [];
+      function closeIntro() {
+        timers.forEach((id) => clearTimeout(id));
+        overlay.style.display = 'none';
       }
-
-      function range(n) {
-        return Array.from({ length: n }, (_, i) => i);
-      }
-
-      function quarterTopLeft() {
-        const arr = [];
-        for (let r = 0; r < 5; r++)
-          for (let c = 0; c < 5; c++) arr.push(r * 10 + c);
-        return arr;
-      }
-
-      function threeQuarter() {
-        const arr = [];
-        for (let r = 0; r < 10; r++)
-          for (let c = 0; c < 10; c++)
-            if (!(r >= 5 && c >= 5)) arr.push(r * 10 + c);
-        return arr;
-      }
-
-      const steps = [
-        [500, () => { text.textContent = 'Ganzes Feld'; renderGrid([]); }],
-        [3000, () => { text.textContent = 'Wir teilen in 100 Teile'; renderGrid([]); }],
-        [5000, () => { text.textContent = '1 %'; renderGrid(range(1)); }],
-        [7000, () => { text.textContent = '10 %'; renderGrid(range(10)); }],
-        [9000, () => { text.textContent = '25 %'; renderGrid(range(25)); }],
-        [10500, () => { text.textContent = '25 % = 1/4'; renderGrid(quarterTopLeft()); }],
-        [12000, () => { text.textContent = '50 %'; renderGrid(range(50)); }],
-        [14000, () => { text.textContent = '75 %'; renderGrid(range(75)); }],
-        [15500, () => { text.textContent = '75 % = 3/4'; renderGrid(threeQuarter()); }],
-        [17000, () => { text.textContent = '100 %'; renderGrid(range(100)); }],
-        [19000, () => overlay.style.display = 'none']
-      ];
-
-      steps.forEach(([delay, fn]) => setTimeout(fn, delay));
-
-      skipBtn.onclick = () => overlay.style.display = 'none';
+      skipBtn.onclick = closeIntro;
       dontShow.onchange = (e) => {
         if (e.target.checked) localStorage.setItem('skipPercentIntro', 'true');
+        else localStorage.removeItem('skipPercentIntro');
       };
+
+      function range(n) { return Array.from({ length: n }, (_, i) => i); }
+      function quarterTopLeft() {
+        const out = [];
+        for (let r = 0; r < 5; r += 1) for (let c = 0; c < 5; c += 1) out.push(r * 10 + c);
+        return out;
+      }
+      function threeQuarters() {
+        const out = [];
+        for (let r = 0; r < 10; r += 1) {
+          for (let c = 0; c < 10; c += 1) {
+            if (!(r >= 5 && c >= 5)) out.push(r * 10 + c);
+          }
+        }
+        return out;
+      }
+      function cellsFromIndices(indices, color) {
+        const set = new Set(indices);
+        let html = '';
+        for (let r = 0; r < 10; r += 1) {
+          for (let c = 0; c < 10; c += 1) {
+            const i = r * 10 + c;
+            const fill = set.has(i) ? color : 'rgba(255,255,255,0.18)';
+            const borderBottom = r === 4 ? '2px solid rgba(0,0,0,0.28)' : '1px solid rgba(0,0,0,0.18)';
+            html += `<div style="background:${fill};border-right:1px solid rgba(0,0,0,0.18);border-bottom:${borderBottom};"></div>`;
+          }
+        }
+        return html;
+      }
+      function renderIntro(indices, label, color = '#3b82f6', showGrid = true) {
+        text.textContent = label;
+        const grid = showGrid
+          ? `<div style="position:absolute;inset:0;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);">${cellsFromIndices(indices, color)}</div>`
+          : '';
+        stage.innerHTML = `<div style="position:relative;width:100%;height:100%;background:#16a34a;border-radius:8px;overflow:hidden;">${grid}<div style="position:absolute;left:50%;top:0;bottom:0;width:2px;background:white;transform:translateX(-50%);"></div><div style="position:absolute;left:50%;top:50%;width:40px;height:40px;border:2px solid white;border-radius:50%;transform:translate(-50%,-50%);"></div></div>`;
+      }
+
+      const quarter = quarterTopLeft();
+      const threeQ = threeQuarters();
+      const steps = [
+        [500, () => renderIntro([], 'Ganzes Feld', '#3b82f6', false)],
+        [2500, () => renderIntro([], 'Wir teilen in 100 Teile')],
+        [4500, () => renderIntro(range(1), '1 %')],
+        [6500, () => renderIntro(range(10), '10 %')],
+        [8500, () => renderIntro(range(25), '25 %')],
+        [10000, () => renderIntro(quarter, '25 % = 1/4')],
+        [11500, () => renderIntro(range(50), '50 %')],
+        [13500, () => renderIntro(range(75), '75 %')],
+        [15000, () => renderIntro(threeQ, '75 % = 3/4')],
+        [16500, () => renderIntro(range(100), '100 %')],
+        [18500, () => renderIntro([], '📊 p = Prozent')],
+        [20000, () => renderIntro([0], '🧩 W = Teil', '#22c55e')],
+        [21500, () => renderIntro(range(100), '🟦 G = Ganzes')],
+        [23500, closeIntro]
+      ];
+      renderIntro([], '', '#3b82f6', false);
+      steps.forEach(([delay, fn]) => timers.push(window.setTimeout(fn, delay)));
     }
 
-    setTimeout(startIntro, 200);
+    renderAll();
+    newTask();
+    window.setTimeout(startIntro, 200);
   </script>
-
-
-<div id="introOverlay" style="position:fixed;inset:0;background:white;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:20px;">
-  <div id="introStage" style="width:260px;height:180px;position:relative;"></div>
-  <div id="introText" style="font-weight:700;font-size:1.1rem;min-height:1.5em;"></div>
-  <div style="display:flex;gap:12px;align-items:center;">
-    <button id="skipIntro" class="btn secondary" type="button">Überspringen</button>
-    <label style="font-size:0.9rem;color:#64748b">
-      <input type="checkbox" id="dontShowIntro"> Nicht mehr anzeigen
-    </label>
-  </div>
-</div>
-
-<script>
-(function(){
-  const overlay = document.getElementById('introOverlay');
-  const stage = document.getElementById('introStage');
-  const text = document.getElementById('introText');
-  const skipBtn = document.getElementById('skipIntro');
-  const dontShow = document.getElementById('dontShowIntro');
-
-  if (!overlay || !stage || !text || !skipBtn || !dontShow) return;
-
-  function closeIntro(){
-    overlay.style.display = 'none';
-  }
-
-  function cellsFromIndices(indices, color){
-    const set = new Set(indices);
-    let html = '';
-    for(let r = 0; r < 10; r += 1){
-      for(let c = 0; c < 10; c += 1){
-        const i = r * 10 + c;
-        const fill = set.has(i) ? color : 'rgba(255,255,255,0.18)';
-        const borderBottom = r === 4 ? '2px solid rgba(0,0,0,0.28)' : '1px solid rgba(0,0,0,0.18)';
-        html += `<div style="background:${fill};border-right:1px solid rgba(0,0,0,0.18);border-bottom:${borderBottom};"></div>`;
-      }
-    }
-    return html;
-  }
-
-  function renderIntro(indices, label, color = '#3b82f6', showGrid = true){
-    text.textContent = label;
-    const grid = showGrid
-      ? `<div style="position:absolute;inset:0;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);">${cellsFromIndices(indices, color)}</div>`
-      : '';
-
-    stage.innerHTML = `
-      <div style="position:relative;width:100%;height:100%;background:#16a34a;border-radius:8px;overflow:hidden;">
-        ${grid}
-        <div style="position:absolute;left:50%;top:0;bottom:0;width:2px;background:white;transform:translateX(-50%);"></div>
-        <div style="position:absolute;left:50%;top:50%;width:40px;height:40px;border:2px solid white;border-radius:50%;transform:translate(-50%,-50%);"></div>
-      </div>`;
-  }
-
-  function range(n){
-    return Array.from({length:n}, (_, i) => i);
-  }
-
-  function quarterTopLeft(){
-    const out = [];
-    for(let r = 0; r < 5; r += 1){
-      for(let c = 0; c < 5; c += 1){
-        out.push(r * 10 + c);
-      }
-    }
-    return out;
-  }
-
-  function threeQuarters(){
-    const out = [];
-    for(let r = 0; r < 10; r += 1){
-      for(let c = 0; c < 10; c += 1){
-        if(!(r >= 5 && c >= 5)) out.push(r * 10 + c);
-      }
-    }
-    return out;
-  }
-
-  const quarter = quarterTopLeft();
-  const threeQ = threeQuarters();
-
-  if(localStorage.getItem('skipPercentIntro') === 'true'){
-    overlay.style.display = 'none';
-    return;
-  }
-
-  skipBtn.onclick = closeIntro;
-  dontShow.onchange = (e) => {
-    if(e.target.checked) localStorage.setItem('skipPercentIntro', 'true');
-    else localStorage.removeItem('skipPercentIntro');
-  };
-
-  const steps = [
-    [500, () => renderIntro([], 'Ganzes Feld', '#3b82f6', false)],
-    [2500, () => renderIntro([], 'Wir teilen in 100 Teile')],
-    [4500, () => renderIntro(range(1), '1 %')],
-    [6500, () => renderIntro(range(10), '10 %')],
-    [8500, () => renderIntro(range(25), '25 %')],
-    [10000, () => renderIntro(quarter, '25 % = 1/4')],
-    [11500, () => renderIntro(range(50), '50 %')],
-    [13500, () => renderIntro(range(75), '75 %')],
-    [15000, () => renderIntro(threeQ, '75 % = 3/4')],
-    [16500, () => renderIntro(range(100), '100 %')],
-    [18500, () => renderIntro([], '📊 p = Prozent')],
-    [20000, () => renderIntro([0], '🧩 W = Teil', '#22c55e')],
-    [21500, () => renderIntro(range(100), '🟦 G = Ganzes')],
-    [23500, closeIntro]
-  ];
-
-  renderIntro([], '', '#3b82f6', false);
-  steps.forEach(([delay, fn]) => window.setTimeout(fn, delay));
-})();
-</script>
-
 </body>
 </html>
