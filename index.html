@@ -484,7 +484,42 @@
     ];
 
     const typeConfig = {
-      teil: { icon: '🧩', text: 'Teil' },
+      teil: {
+        html: `
+        <div style="display:flex;align-items:center;gap:10px;">
+        <div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">
+          <div style="width:12px;height:12px;background:#22c55e"></div>
+          <div style="width:12px;height:12px;background:#e5e7eb"></div>
+          <div style="width:12px;height:12px;background:#e5e7eb"></div>
+          <div style="width:12px;height:12px;background:#e5e7eb"></div>
+          <div style="width:12px;height:12px;background:#e5e7eb"></div>
+          <div style="width:12px;height:12px;background:#e5e7eb"></div>
+          <div style="width:12px;height:12px;background:#e5e7eb"></div>
+          <div style="width:12px;height:12px;background:#e5e7eb"></div>
+          <div style="width:12px;height:12px;background:#e5e7eb"></div>
+        </div>
+        <span>🧩 W</span>
+        </div>`
+      },
+      ganz: {
+        html: `
+        <div style="display:flex;align-items:center;gap:10px;">
+        <div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">
+          ${Array(9).fill('<div style="width:12px;height:12px;background:#3b82f6"></div>').join('')}
+        </div>
+        <span>🟦 G</span>
+        </div>`
+      },
+      prozent: {
+        html: `
+        <div style="display:flex;align-items:center;gap:10px;">
+        <div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">
+          ${Array(9).fill('<div style="width:12px;height:12px;background:#e5e7eb"></div>').join('')}
+        </div>
+        <span>📊 p</span>
+        </div>`
+      }
+    },
       ganz: { icon: '🟦', text: 'Ganzes' },
       prozent: { icon: '📊', text: 'Prozent' }
     }
@@ -555,7 +590,7 @@
       taskLabel.textContent = currentTask.label;
 
       const type = typeConfig[currentTask.type];
-      taskType.textContent = `${type.icon} Gesucht: ${type.text}`;
+      taskType.innerHTML = type.html;
 
       unitLabel.textContent = currentTask.unit || '';
 
