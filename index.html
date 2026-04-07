@@ -613,7 +613,7 @@ setTimeout(()=>{
 },15000);
 }
 
-runIntro();
+setTimeout(()=>{ runIntro(); },200);
 
 document.getElementById('skipIntro').onclick=()=>{
  document.getElementById('introOverlay').style.display='none';
