@@ -514,6 +514,28 @@
     const solutionBox = document.getElementById('solutionBox');
     const purposeBox = document.getElementById('purposeBox');
 
+    function renderSidebar(){
+      const topic = topics[currentTopicIndex];
+      levelBadge.textContent = topic.short;
+      formulaBox.textContent = topic.formula;
+      topicSummary.textContent = topic.summary;
+
+      topicButtons.innerHTML='';
+      topics.forEach((t,i)=>{
+        const b=document.createElement('button');
+        b.className='topic-btn'+(i===currentTopicIndex?' active':'');
+        b.textContent=t.title;
+        b.onclick=()=>{
+          currentTopicIndex=i;
+          difficulty=0;
+          solved=0;
+          renderSidebar();
+          newTask();
+        }
+        topicButtons.appendChild(b);
+      })
+    }
+
     function randInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
@@ -635,6 +657,7 @@
       purposeBox.innerHTML = topic.purpose.points.join('<br>');
     });
 
+    renderSidebar();
     newTask();
   </script>
 </body>
