@@ -516,101 +516,67 @@
       const skipBtn = document.getElementById('skipIntro');
       const dontShow = document.getElementById('dontShowIntro');
 
-      if (!overlay || !stage || !text || !skipBtn || !dontShow) return;
+      if (!overlay || !stage || !text) return;
       if (localStorage.getItem('skipPercentIntro') === 'true') {
         overlay.style.display = 'none';
         return;
       }
 
-      let timeouts = [];
+      function renderGrid(indices = [], color = '#3b82f6') {
+        const cells = [];
+        for (let r = 0; r < 10; r++) {
+          for (let c = 0; c < 10; c++) {
+            const index = r * 10 + c;
+            const fill = indices.includes(index) ? color : 'rgba(255,255,255,0.2)';
 
-      function closeIntro() {
-        timeouts.forEach((id) => clearTimeout(id));
-        overlay.style.display = 'none';
-      }
+            const borderRight = c === 4 ? '2px' : '1px';
+            const borderBottom = r === 4 ? '2px' : '1px';
 
-      function quarterCells() {
-        const topLeft = [];
-        const threeQuarters = [];
-        for (let r = 0; r < 10; r += 1) {
-          for (let c = 0; c < 10; c += 1) {
-            const i = r * 10 + c;
-            if (r < 5 && c < 5) topLeft.push(i);
-            if (!(r >= 5 && c >= 5)) threeQuarters.push(i);
+            cells.push(`
+              <div style="
+                background:${fill};
+                border-right:${borderRight} solid rgba(0,0,0,0.35);
+                border-bottom:${borderBottom} solid rgba(0,0,0,0.35);
+              "></div>
+            `);
           }
         }
-        return { topLeft, threeQuarters };
-      }
-
-      const { topLeft, threeQuarters } = quarterCells();
-
-      function renderIntroField(modeName) {
-        let colored = [];
-        if (modeName === 'p1') colored = [0];
-        if (modeName === 'p10') colored = Array.from({ length: 10 }, (_, i) => i);
-        if (modeName === 'p25-linear') colored = Array.from({ length: 25 }, (_, i) => i);
-        if (modeName === 'p25-quarter') colored = topLeft;
-        if (modeName === 'p50') colored = Array.from({ length: 50 }, (_, i) => i);
-        if (modeName === 'p75-linear') colored = Array.from({ length: 75 }, (_, i) => i);
-        if (modeName === 'p75-quarter') colored = threeQuarters;
-        if (modeName === 'p100') colored = Array.from({ length: 100 }, (_, i) => i);
-        if (modeName === 'teil') colored = [0];
-        if (modeName === 'ganz') colored = Array.from({ length: 100 }, (_, i) => i);
-
-        const showGrid = modeName !== 'field';
-        const useGreen = modeName === 'teil';
-        const color = useGreen ? '#22c55e' : '#3b82f6';
-        const cells = Array.from({ length: 100 }, (_, i) => {
-          const fill = colored.includes(i) ? color : 'rgba(255,255,255,0.25)';
-          return `<div style="background:${fill};"></div>`;
-        }).join('');
 
         stage.innerHTML = `
-          <div style="position:relative;width:100%;height:100%;">
-            <div style="position:absolute;inset:0;background:#16a34a;border-radius:6px;">
-              <div style="position:absolute;left:50%;top:0;bottom:0;width:2px;background:white;"></div>
-              <div style="position:absolute;left:50%;top:50%;width:40px;height:40px;border:2px solid white;border-radius:50%;transform:translate(-50%,-50%);"></div>
+          <div style="position:relative;width:100%;height:100%;background:#16a34a;border-radius:8px;overflow:hidden;">
+            <div style="position:absolute;inset:0;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);">
+              ${cells.join('')}
             </div>
-            ${showGrid ? `<div style="position:absolute;inset:0;display:grid;grid-template-columns:repeat(10,1fr);gap:1px;">${cells}</div>` : ''}
+            <div style="position:absolute;left:50%;top:0;bottom:0;width:2px;background:white;"></div>
+            <div style="position:absolute;top:50%;left:0;right:0;height:2px;background:white;"></div>
+            <div style="position:absolute;left:50%;top:50%;width:40px;height:40px;border:2px solid white;border-radius:50%;transform:translate(-50%,-50%);"></div>
           </div>`;
       }
 
-      renderIntroField('field');
-      text.textContent = '';
+      function range(n) {
+        return Array.from({ length: n }, (_, i) => i);
+      }
 
-      const schedule = [
-        [500, () => { text.textContent = 'Ganzes Feld'; renderIntroField('field'); }],
-        [2200, () => { text.textContent = 'Wir teilen in 100 Teile'; renderIntroField('p0'); }],
-        [3800, () => { text.textContent = '1 %'; renderIntroField('p1'); }],
-        [5400, () => { text.textContent = '10 %'; renderIntroField('p10'); }],
-        [7000, () => { text.textContent = '25 %'; renderIntroField('p25-linear'); }],
-        [7600, () => { text.textContent = '25 % = 1/4'; renderIntroField('p25-quarter'); }],
-        [8200, () => { text.textContent = '25 %'; renderIntroField('p25-linear'); }],
-        [9000, () => { text.textContent = '50 %'; renderIntroField('p50'); }],
-        [10600, () => { text.textContent = '75 %'; renderIntroField('p75-linear'); }],
-        [11200, () => { text.textContent = '75 % = 3/4'; renderIntroField('p75-quarter'); }],
-        [11800, () => { text.textContent = '75 %'; renderIntroField('p75-linear'); }],
-        [12600, () => { text.textContent = '100 %'; renderIntroField('p100'); }],
-        [14400, () => { text.textContent = '📊 Prozent gesucht'; renderIntroField('p0'); }],
-        [15800, () => { text.textContent = '🧩 Teil gesucht'; renderIntroField('teil'); }],
-        [17200, () => { text.textContent = '🟦 Ganzes gesucht'; renderIntroField('ganz'); }],
-        [19000, () => closeIntro()]
-      ];
+      function quarterTopLeft() {
+        const arr = [];
+        for (let r = 0; r < 5; r++)
+          for (let c = 0; c < 5; c++) arr.push(r * 10 + c);
+        return arr;
+      }
 
-      schedule.forEach(([delay, fn]) => {
-        timeouts.push(setTimeout(fn, delay));
-      });
+      function threeQuarter() {
+        const arr = [];
+        for (let r = 0; r < 10; r++)
+          for (let c = 0; c < 10; c++)
+            if (!(r >= 5 && c >= 5)) arr.push(r * 10 + c);
+        return arr;
+      }
 
-      skipBtn.onclick = closeIntro;
-      dontShow.onchange = (e) => {
-        if (e.target.checked) localStorage.setItem('skipPercentIntro', 'true');
-        else localStorage.removeItem('skipPercentIntro');
-      };
-    }
-
-    renderAll();
-    newTask();
-    setTimeout(startIntro, 200);
+      const steps = [
+        [500, () => { text.textContent = 'Ganzes Feld'; renderGrid([]); }],
+        [3000, () => { text.textContent = 'Wir teilen in 100 Teile'; renderGrid([]); }],
+        [5000, () => { text.textContent = '1 %'; renderGrid(range(1)); }],
+        [7000, () => { text.textContent
   </script>
 
 
@@ -741,4 +707,3 @@ document.getElementById('dontShowIntro').onchange=(e)=>{
 
 </body>
 </html>
-
