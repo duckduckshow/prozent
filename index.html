@@ -576,7 +576,25 @@
         [500, () => { text.textContent = 'Ganzes Feld'; renderGrid([]); }],
         [3000, () => { text.textContent = 'Wir teilen in 100 Teile'; renderGrid([]); }],
         [5000, () => { text.textContent = '1 %'; renderGrid(range(1)); }],
-        [7000, () => { text.textContent
+        [7000, () => { text.textContent = '10 %'; renderGrid(range(10)); }],
+        [9000, () => { text.textContent = '25 %'; renderGrid(range(25)); }],
+        [10500, () => { text.textContent = '25 % = 1/4'; renderGrid(quarterTopLeft()); }],
+        [12000, () => { text.textContent = '50 %'; renderGrid(range(50)); }],
+        [14000, () => { text.textContent = '75 %'; renderGrid(range(75)); }],
+        [15500, () => { text.textContent = '75 % = 3/4'; renderGrid(threeQuarter()); }],
+        [17000, () => { text.textContent = '100 %'; renderGrid(range(100)); }],
+        [19000, () => overlay.style.display = 'none']
+      ];
+
+      steps.forEach(([delay, fn]) => setTimeout(fn, delay));
+
+      skipBtn.onclick = () => overlay.style.display = 'none';
+      dontShow.onchange = (e) => {
+        if (e.target.checked) localStorage.setItem('skipPercentIntro', 'true');
+      };
+    }
+
+    setTimeout(startIntro, 200);
   </script>
 
 
