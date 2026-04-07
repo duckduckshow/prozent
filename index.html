@@ -602,6 +602,10 @@ setTimeout(()=>{
 setTimeout(()=>{
  text.textContent='25 %';
  grid(25);
+ setTimeout(()=>{ grid(25,'#3b82f6',true); },300);
+ setTimeout(()=>{
+   stage.innerHTML = stage.innerHTML.replace(/background:#3b82f6/g,'background:#22c55e');
+ },600);
 },7000);
 
 setTimeout(()=>{
@@ -612,6 +616,10 @@ setTimeout(()=>{
 setTimeout(()=>{
  text.textContent='75 %';
  grid(75);
+ setTimeout(()=>{ grid(75,'#3b82f6',true); },300);
+ setTimeout(()=>{
+   stage.innerHTML = stage.innerHTML.replace(/background:#3b82f6/g,'background:#22c55e');
+ },600);
 },10200);
 
 setTimeout(()=>{
