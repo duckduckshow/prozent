@@ -483,24 +483,36 @@
       }
     ];
 
-    const typeConfig = {
-      teil: {
-        html: `
+    function renderType(type){
+      if(type==='teil'){
+        return `
         <div style="display:flex;align-items:center;gap:10px;">
-        <div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">
-          <div style="width:12px;height:12px;background:#22c55e"></div>
-          <div style="width:12px;height:12px;background:#e5e7eb"></div>
-          <div style="width:12px;height:12px;background:#e5e7eb"></div>
-          <div style="width:12px;height:12px;background:#e5e7eb"></div>
-          <div style="width:12px;height:12px;background:#e5e7eb"></div>
-          <div style="width:12px;height:12px;background:#e5e7eb"></div>
-          <div style="width:12px;height:12px;background:#e5e7eb"></div>
-          <div style="width:12px;height:12px;background:#e5e7eb"></div>
-          <div style="width:12px;height:12px;background:#e5e7eb"></div>
-        </div>
-        <span>🧩 W</span>
+          <div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">
+            <div style="width:12px;height:12px;background:#22c55e"></div>
+            ${Array(8).fill('<div style="width:12px;height:12px;background:#e5e7eb"></div>').join('')}
+          </div>
+          <span>🧩 W</span>
         </div>`
-      },
+      }
+
+      if(type==='ganz'){
+        return `
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">
+            ${Array(9).fill('<div style="width:12px;height:12px;background:#3b82f6"></div>').join('')}
+          </div>
+          <span>🟦 G</span>
+        </div>`
+      }
+
+      return `
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">
+          ${Array(9).fill('<div style="width:12px;height:12px;background:#e5e7eb"></div>').join('')}
+        </div>
+        <span>📊 p</span>
+      </div>`
+    },
       ganz: {
         html: `
         <div style="display:flex;align-items:center;gap:10px;">
@@ -590,7 +602,7 @@
       taskLabel.textContent = currentTask.label;
 
       const type = typeConfig[currentTask.type];
-      taskType.innerHTML = type.html;
+      taskType.innerHTML = renderType(currentTask.type);
 
       unitLabel.textContent = currentTask.unit || '';
 
