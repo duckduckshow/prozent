@@ -529,7 +529,7 @@
             const index = r * 10 + c;
             const fill = indices.includes(index) ? color : 'rgba(255,255,255,0.2)';
 
-            const borderRight = c === 4 ? '2px' : '1px';
+            const borderRight = '1px';
             const borderBottom = r === 4 ? '2px' : '1px';
 
             cells.push(`
@@ -548,7 +548,6 @@
               ${cells.join('')}
             </div>
             <div style="position:absolute;left:50%;top:0;bottom:0;width:2px;background:white;"></div>
-            <div style="position:absolute;top:50%;left:0;right:0;height:2px;background:white;"></div>
             <div style="position:absolute;left:50%;top:50%;width:40px;height:40px;border:2px solid white;border-radius:50%;transform:translate(-50%,-50%);"></div>
           </div>`;
       }
