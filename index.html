@@ -530,57 +530,72 @@ const stage = document.getElementById('introStage');
 const text = document.getElementById('introText');
 
 function grid(count,color='#3b82f6'){
- stage.innerHTML=`<div style="display:grid;grid-template-columns:repeat(10,1fr);gap:2px;width:100%;height:100%;">
- ${Array(100).fill(0).map((_,i)=>`<div style="background:${i<count?color:'#e5e7eb'}"></div>`).join('')}
+ stage.innerHTML=`
+ <div style="position:relative;width:100%;height:100%;">
+ 
+ <div style="position:absolute;inset:0;background:#16a34a;border-radius:6px;">
+   <div style="position:absolute;left:50%;top:0;bottom:0;width:2px;background:white;"></div>
+   <div style="position:absolute;left:50%;top:50%;width:40px;height:40px;border:2px solid white;border-radius:50%;transform:translate(-50%,-50%);"></div>
+ </div>
+ 
+ <div style="position:absolute;inset:0;display:grid;grid-template-columns:repeat(10,1fr);gap:1px;">
+ ${Array(100).fill(0).map((_,i)=>`<div style="background:${i<count?color:'rgba(255,255,255,0.25)'}"></div>`).join('')}
+ </div>
+ 
  </div>`
 }
 
 setTimeout(()=>{
  text.textContent='100 Felder = 100 %';
  grid(0);
-},400);
+},500);
 
 setTimeout(()=>{
  text.textContent='1 %';
  grid(1);
-},1400);
+},2200);
 
 setTimeout(()=>{
  text.textContent='10 %';
  grid(10);
-},2400);
+},3800);
+
+setTimeout(()=>{
+ text.textContent='25 %';
+ grid(25);
+},5400);
 
 setTimeout(()=>{
  text.textContent='50 %';
  grid(50);
-},3400);
+},7000);
 
 setTimeout(()=>{
  text.textContent='100 %';
  grid(100);
-},4400);
+},8600);
 
 setTimeout(()=>{
  text.textContent='📊 Prozent gesucht';
- grid(0,'#e5e7eb');
-},5600);
+ grid(0,'rgba(255,255,255,0.25)');
+},10400);
 
 setTimeout(()=>{
  text.textContent='🧩 Teil gesucht';
  grid(1,'#22c55e');
-},6600);
+},11800);
 
 setTimeout(()=>{
  text.textContent='🟦 Ganzes gesucht';
  grid(100,'#3b82f6');
-},7600);
+},13200);
 
 setTimeout(()=>{
  document.getElementById('introOverlay').style.opacity='0';
  setTimeout(()=>{
  document.getElementById('introOverlay').style.display='none';
  },400);
-},9000);
+},15000);
 }
 
 runIntro();
@@ -599,3 +614,4 @@ document.getElementById('dontShowIntro').onchange=(e)=>{
 
 </body>
 </html>
+
