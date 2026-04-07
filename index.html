@@ -425,11 +425,7 @@
         summary: 'Du suchst einen Teil von etwas.',
         purpose: {
           title: 'Wozu brauche ich das?',
-          points: [
-            'Rabatte berechnen.',
-            'Anteile verstehen.',
-            'Teil von etwas berechnen.'
-          ]
+          points: ['Rabatte berechnen.', 'Anteile verstehen.', 'Teil von etwas berechnen.']
         },
         generator: generateProzentwert
       },
@@ -441,11 +437,7 @@
         summary: 'Du suchst das Ganze.',
         purpose: {
           title: 'Wozu brauche ich das?',
-          points: [
-            'Alter Preis berechnen.',
-            'Gesamtzahl finden.',
-            'Vom Teil zurück rechnen.'
-          ]
+          points: ['Alter Preis berechnen.', 'Gesamtzahl finden.', 'Vom Teil zurück rechnen.']
         },
         generator: generateGrundwert
       },
@@ -457,11 +449,7 @@
         summary: 'Du vergleichst Teil und Ganzes.',
         purpose: {
           title: 'Wozu brauche ich das?',
-          points: [
-            'Vergleichen.',
-            'Preisänderungen verstehen.',
-            'Prozent lesen.'
-          ]
+          points: ['Vergleichen.', 'Preisänderungen verstehen.', 'Prozent lesen.']
         },
         generator: generateProzentsatz
       },
@@ -473,76 +461,18 @@
         summary: 'Geld wird mehr.',
         purpose: {
           title: 'Wozu brauche ich das?',
-          points: [
-            'Sparen verstehen.',
-            'Kredite verstehen.',
-            'Geld wächst.'
-          ]
+          points: ['Sparen verstehen.', 'Kredite verstehen.', 'Geld wächst.']
         },
         generator: generateZins
       }
     ];
 
-    function renderType(type){
-      if(type==='teil'){
-        return `
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">
-            <div style="width:12px;height:12px;background:#22c55e"></div>
-            ${Array(8).fill('<div style="width:12px;height:12px;background:#e5e7eb"></div>').join('')}
-          </div>
-          <span>🧩 W</span>
-        </div>`
-      }
-
-      if(type==='ganz'){
-        return `
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">
-            ${Array(9).fill('<div style="width:12px;height:12px;background:#3b82f6"></div>').join('')}
-          </div>
-          <span>🟦 G</span>
-        </div>`
-      }
-
-      return `
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">
-          ${Array(9).fill('<div style="width:12px;height:12px;background:#e5e7eb"></div>').join('')}
-        </div>
-        <span>📊 p</span>
-      </div>`
-    },
-      ganz: {
-        html: `
-        <div style="display:flex;align-items:center;gap:10px;">
-        <div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">
-          ${Array(9).fill('<div style="width:12px;height:12px;background:#3b82f6"></div>').join('')}
-        </div>
-        <span>🟦 G</span>
-        </div>`
-      },
-      prozent: {
-        html: `
-        <div style="display:flex;align-items:center;gap:10px;">
-        <div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">
-          ${Array(9).fill('<div style="width:12px;height:12px;background:#e5e7eb"></div>').join('')}
-        </div>
-        <span>📊 p</span>
-        </div>`
-      }
-    },
-      ganz: { icon: '🟦', text: 'Ganzes' },
-      prozent: { icon: '📊', text: 'Prozent' }
-    }
-
-    let difficulty = 0;
-    let solved = 0;
-
     let currentTopicIndex = 0;
     let currentTask = null;
     let score = 0;
     let streak = 0;
+    let solvedInTopic = 0;
+    let mode = 'practice';
 
     const topicButtons = document.getElementById('topicButtons');
     const levelBadge = document.getElementById('levelBadge');
@@ -560,151 +490,344 @@
     const hintBox = document.getElementById('hintBox');
     const solutionBox = document.getElementById('solutionBox');
     const purposeBox = document.getElementById('purposeBox');
-
-    function renderSidebar(){
-      const topic = topics[currentTopicIndex];
-      levelBadge.textContent = topic.short;
-      formulaBox.textContent = topic.formula;
-      topicSummary.textContent = topic.summary;
-
-      topicButtons.innerHTML='';
-      topics.forEach((t,i)=>{
-        const b=document.createElement('button');
-        b.className='topic-btn'+(i===currentTopicIndex?' active':'');
-        b.textContent=t.title;
-        b.onclick=()=>{
-          currentTopicIndex=i;
-          difficulty=0;
-          solved=0;
-          renderSidebar();
-          newTask();
-        }
-        topicButtons.appendChild(b);
-      })
-    }
+    const normalModeBtn = document.getElementById('normalModeBtn');
+    const testModeBtn = document.getElementById('testModeBtn');
 
     function randInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     function round2(n) {
-      return Math.round(n * 100) / 100;
+      return Math.round((n + Number.EPSILON) * 100) / 100;
+    }
+
+    function difficultyLevel() {
+      if (solvedInTopic < 4) return 0;
+      if (solvedInTopic < 8) return 1;
+      return 2;
+    }
+
+    function renderType(type) {
+      const common = 'width:12px;height:12px;border-radius:2px;';
+      if (type === 'teil') {
+        return `
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">
+              <div style="${common}background:#22c55e"></div>
+              <div style="${common}background:#e5e7eb"></div>
+              <div style="${common}background:#e5e7eb"></div>
+              <div style="${common}background:#e5e7eb"></div>
+              <div style="${common}background:#e5e7eb"></div>
+              <div style="${common}background:#e5e7eb"></div>
+              <div style="${common}background:#e5e7eb"></div>
+              <div style="${common}background:#e5e7eb"></div>
+              <div style="${common}background:#e5e7eb"></div>
+            </div>
+            <span>🧩 W</span>
+          </div>`;
+      }
+
+      if (type === 'ganz') {
+        return `
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">
+              <div style="${common}background:#3b82f6"></div>
+              <div style="${common}background:#3b82f6"></div>
+              <div style="${common}background:#3b82f6"></div>
+              <div style="${common}background:#3b82f6"></div>
+              <div style="${common}background:#3b82f6"></div>
+              <div style="${common}background:#3b82f6"></div>
+              <div style="${common}background:#3b82f6"></div>
+              <div style="${common}background:#3b82f6"></div>
+              <div style="${common}background:#3b82f6"></div>
+            </div>
+            <span>🟦 G</span>
+          </div>`;
+      }
+
+      return `
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">
+            <div style="${common}background:#e5e7eb"></div>
+            <div style="${common}background:#e5e7eb"></div>
+            <div style="${common}background:#e5e7eb"></div>
+            <div style="${common}background:#e5e7eb"></div>
+            <div style="${common}background:#e5e7eb"></div>
+            <div style="${common}background:#e5e7eb"></div>
+            <div style="${common}background:#e5e7eb"></div>
+            <div style="${common}background:#e5e7eb"></div>
+            <div style="${common}background:#e5e7eb"></div>
+          </div>
+          <span>📊 p</span>
+        </div>`;
+    }
+
+    function renderSidebar() {
+      const topic = topics[currentTopicIndex];
+      levelBadge.textContent = topic.short;
+      scoreBadge.textContent = score;
+      streakBadge.textContent = streak;
+      formulaBox.textContent = topic.formula;
+      topicSummary.textContent = topic.summary;
+      progressBar.style.width = ((currentTopicIndex + 1) / topics.length) * 100 + '%';
+
+      topicButtons.innerHTML = '';
+      topics.forEach((topicItem, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'topic-btn' + (index === currentTopicIndex ? ' active' : '');
+        btn.textContent = topicItem.title;
+        btn.addEventListener('click', () => {
+          currentTopicIndex = index;
+          solvedInTopic = 0;
+          clearMessages();
+          renderAll();
+          newTask();
+        });
+        topicButtons.appendChild(btn);
+      });
+    }
+
+    function clearMessages() {
+      feedbackBox.className = 'feedback';
+      feedbackBox.textContent = '';
+      hintBox.className = 'hint';
+      hintBox.textContent = '';
+      solutionBox.className = 'solution';
+      solutionBox.innerHTML = '';
+      purposeBox.className = 'purpose-box';
+      purposeBox.innerHTML = '';
     }
 
     function newTask() {
-      if (solved > 4) difficulty = 1;
-      if (solved > 8) difficulty = 2;
-
-      const topic = topics[currentTopicIndex];
-      currentTask = topic.generator();
-
-      taskText.textContent = currentTask.text;
+      clearMessages();
+      currentTask = topics[currentTopicIndex].generator(difficultyLevel());
       taskLabel.textContent = currentTask.label;
-
-      const type = typeConfig[currentTask.type];
       taskType.innerHTML = renderType(currentTask.type);
-
+      taskText.textContent = currentTask.text;
       unitLabel.textContent = currentTask.unit || '';
-
       answerInput.value = '';
     }
 
     function checkAnswer() {
-      const val = Number(answerInput.value);
-      if (Math.abs(val - currentTask.answer) < 0.01) {
-        score++;
-        streak++;
-        solved++;
+      const raw = String(answerInput.value).replace(',', '.');
+      const value = Number(raw);
+
+      if (Number.isNaN(value)) {
+        feedbackBox.className = 'feedback bad';
+        feedbackBox.textContent = 'Bitte Zahl eingeben.';
+        return;
+      }
+
+      if (Math.abs(value - currentTask.answer) < 0.01) {
+        score += 1;
+        streak += 1;
+        solvedInTopic += 1;
         feedbackBox.className = 'feedback good';
-        feedbackBox.textContent = 'Richtig';
+        feedbackBox.textContent = 'Richtig.';
       } else {
         streak = 0;
         feedbackBox.className = 'feedback bad';
-        feedbackBox.textContent = 'Nicht richtig';
-      }
-
-      scoreBadge.textContent = score;
-      streakBadge.textContent = streak;
-    }
-
-    function generateProzentwert() {
-      if (difficulty === 0) {
-        const G = [20,40,50,80,100][randInt(0,4)];
-        const p = [10,25,50][randInt(0,2)];
-        return {
-          type:'teil',
-          label:'Kopf',
-          text:`${p}% von ${G}`,
-          answer: round2(G*p/100)
+        feedbackBox.textContent = 'Nicht richtig.';
+        if (mode === 'test') {
+          solutionBox.className = 'solution show';
+          solutionBox.innerHTML = `<strong>Richtig:</strong> ${currentTask.answer}${currentTask.unit ? ' ' + currentTask.unit : ''}`;
         }
       }
 
-      if (difficulty === 1) {
-        const G = randInt(20,200);
-        const p = randInt(5,50);
+      renderSidebar();
+    }
+
+    function showHint() {
+      if (!currentTask) return;
+      hintBox.className = 'hint show';
+      hintBox.textContent = mode === 'test' ? 'Denke an W, G oder p.' : currentTask.hint;
+    }
+
+    function showSolution() {
+      if (!currentTask) return;
+      solutionBox.className = 'solution show';
+      solutionBox.innerHTML = currentTask.solution;
+    }
+
+    function showPurpose() {
+      const topic = topics[currentTopicIndex];
+      purposeBox.className = 'purpose-box show';
+      purposeBox.innerHTML = `<strong>${topic.purpose.title}</strong><ul>${topic.purpose.points.map(point => `<li>${point}</li>`).join('')}</ul>`;
+    }
+
+    function resetAll() {
+      currentTopicIndex = 0;
+      score = 0;
+      streak = 0;
+      solvedInTopic = 0;
+      clearMessages();
+      renderAll();
+      newTask();
+    }
+
+    function renderAll() {
+      renderSidebar();
+      normalModeBtn.classList.toggle('active', mode === 'practice');
+      testModeBtn.classList.toggle('active', mode === 'test');
+    }
+
+    function generateProzentwert(level) {
+      if (level === 0) {
+        const G = [20, 40, 50, 80, 100][randInt(0, 4)];
+        const p = [10, 25, 50][randInt(0, 2)];
+        const W = round2(G * p / 100);
         return {
-          type:'teil',
-          label:'Einfach',
-          text:`${p}% von ${G}`,
-          answer: round2(G*p/100)
-        }
+          type: 'teil',
+          label: 'Kopf',
+          text: `${p} % von ${G}`,
+          unit: '',
+          answer: W,
+          hint: 'Teil von etwas suchen.',
+          solution: `${G} · ${p} ÷ 100 = ${W}`
+        };
       }
 
-      const G = randInt(50,400);
-      const p = randInt(3,37);
-      return {
-        type:'teil',
-        label:'Text',
-        text:`Berechne ${p}% von ${G}`,
-        answer: round2(G*p/100)
+      if (level === 1) {
+        const G = randInt(20, 200);
+        const p = [5, 10, 20, 25, 50][randInt(0, 4)];
+        const W = round2(G * p / 100);
+        return {
+          type: 'teil',
+          label: 'Einfach',
+          text: `${p} % von ${G}`,
+          unit: '',
+          answer: W,
+          hint: 'Mit 100 teilen.',
+          solution: `${G} · ${p} ÷ 100 = ${W}`
+        };
       }
+
+      const G = randInt(50, 300);
+      const p = randInt(3, 40);
+      const W = round2(G * p / 100);
+      return {
+        type: 'teil',
+        label: 'Aufgabe',
+        text: `Berechne ${p} % von ${G}.`,
+        unit: '',
+        answer: W,
+        hint: 'W ist der Teil.',
+        solution: `${G} · ${p} ÷ 100 = ${W}`
+      };
     }
 
-    function generateGrundwert() {
-      const G = [40,50,80,100][randInt(0,3)];
-      const p = [10,20,25,50][randInt(0,3)];
-      const W = round2(G*p/100);
-      return {
-        type:'ganz',
-        label:'Kopf',
-        text:`${W} sind ${p}% von ?`,
-        answer:G
+    function generateGrundwert(level) {
+      if (level === 0) {
+        const G = [40, 50, 80, 100][randInt(0, 3)];
+        const p = [10, 20, 25, 50][randInt(0, 3)];
+        const W = round2(G * p / 100);
+        return {
+          type: 'ganz',
+          label: 'Kopf',
+          text: `${W} sind ${p} % von ?`,
+          unit: '',
+          answer: G,
+          hint: 'Das Ganze suchen.',
+          solution: `${W} · 100 ÷ ${p} = ${G}`
+        };
       }
+
+      const p = [5, 10, 20, 25, 50][randInt(0, 4)];
+      const G = randInt(4, 30) * 10;
+      const W = round2(G * p / 100);
+      return {
+        type: 'ganz',
+        label: level === 1 ? 'Einfach' : 'Aufgabe',
+        text: `${W} sind ${p} % von ?`,
+        unit: '',
+        answer: G,
+        hint: 'Auf 100 % hochrechnen.',
+        solution: `${W} · 100 ÷ ${p} = ${G}`
+      };
     }
 
-    function generateProzentsatz() {
-      const G = [40,50,80,100][randInt(0,3)];
-      const p = [10,20,25,50][randInt(0,3)];
-      const W = round2(G*p/100);
-      return {
-        type:'prozent',
-        label:'Kopf',
-        text:`${W} von ${G} = ? %`,
-        answer:p
+    function generateProzentsatz(level) {
+      if (level === 0) {
+        const G = [40, 50, 80, 100][randInt(0, 3)];
+        const p = [10, 20, 25, 50][randInt(0, 3)];
+        const W = round2(G * p / 100);
+        return {
+          type: 'prozent',
+          label: 'Kopf',
+          text: `${W} von ${G} = ? %`,
+          unit: '%',
+          answer: p,
+          hint: 'Teil mit Ganzem vergleichen.',
+          solution: `${W} ÷ ${G} · 100 = ${p}`
+        };
       }
+
+      const G = randInt(40, 300);
+      const p = [5, 10, 20, 25, 50, 75][randInt(0, 5)];
+      const W = round2(G * p / 100);
+      return {
+        type: 'prozent',
+        label: level === 1 ? 'Einfach' : 'Aufgabe',
+        text: `${W} von ${G} sind wie viel %?`,
+        unit: '%',
+        answer: p,
+        hint: 'Teil ÷ Ganzes · 100.',
+        solution: `${W} ÷ ${G} · 100 = ${p}`
+      };
     }
 
-    function generateZins() {
-      const K = [100,200,500][randInt(0,2)];
-      const p = [1,2,5][randInt(0,2)];
-      return {
-        type:'teil',
-        label:'Kopf',
-        text:`${p}% von ${K} €`,
-        unit:'€',
-        answer:round2(K*p/100)
+    function generateZins(level) {
+      if (level === 0) {
+        const K = [100, 200, 500][randInt(0, 2)];
+        const p = [1, 2, 5][randInt(0, 2)];
+        const Z = round2(K * p / 100);
+        return {
+          type: 'teil',
+          label: 'Kopf',
+          text: `${p} % von ${K} €`,
+          unit: '€',
+          answer: Z,
+          hint: 'Zinsen sind der Teil.',
+          solution: `${K} · ${p} ÷ 100 = ${Z} €`
+        };
       }
+
+      const K = randInt(1, 20) * 100;
+      const p = [1, 2, 3, 4, 5][randInt(0, 4)];
+      const Z = round2(K * p / 100);
+      return {
+        type: 'teil',
+        label: level === 1 ? 'Einfach' : 'Aufgabe',
+        text: `${p} % Zinsen von ${K} €`,
+        unit: '€',
+        answer: Z,
+        hint: 'Wie bei Prozentwert.',
+        solution: `${K} · ${p} ÷ 100 = ${Z} €`
+      };
     }
 
     document.getElementById('checkBtn').addEventListener('click', checkAnswer);
     document.getElementById('nextBtn').addEventListener('click', newTask);
-    document.getElementById('purposeBtn').addEventListener('click', ()=>{
-      const topic = topics[currentTopicIndex];
-      purposeBox.className='purpose-box show';
-      purposeBox.innerHTML = topic.purpose.points.join('<br>');
+    document.getElementById('hintBtn').addEventListener('click', showHint);
+    document.getElementById('solutionBtn').addEventListener('click', showSolution);
+    document.getElementById('purposeBtn').addEventListener('click', showPurpose);
+    document.getElementById('resetBtn').addEventListener('click', resetAll);
+
+    normalModeBtn.addEventListener('click', () => {
+      mode = 'practice';
+      renderAll();
     });
 
-    renderSidebar();
+    testModeBtn.addEventListener('click', () => {
+      mode = 'test';
+      renderAll();
+    });
+
+    answerInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') checkAnswer();
+    });
+
+    renderAll();
     newTask();
   </script>
 </body>
