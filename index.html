@@ -541,9 +541,7 @@
               "></div>
             `);
           }
-        }ale Mittellinie immer dicker */
-
-            cells.push(`
+        }(`
               <div style="
                 background:${fill};
                 border-right:${borderRight} solid rgba(0,0,0,0.35);
@@ -610,9 +608,9 @@
 
 <div id="introOverlay" style="position:fixed;inset:0;background:white;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:20px;">
   <div id="introStage" style="width:260px;height:180px;position:relative;"></div>
-  <div id="introText" style="font-weight:700;font-size:1.1rem;"></div>
+  <div id="introText" style="font-weight:700;font-size:1.1rem;min-height:1.5em;"></div>
   <div style="display:flex;gap:12px;align-items:center;">
-    <button id="skipIntro" class="btn secondary">Überspringen</button>
+    <button id="skipIntro" class="btn secondary" type="button">Überspringen</button>
     <label style="font-size:0.9rem;color:#64748b">
       <input type="checkbox" id="dontShowIntro"> Nicht mehr anzeigen
     </label>
@@ -620,117 +618,105 @@
 </div>
 
 <script>
-function runIntro(){
+(function(){
+  const overlay = document.getElementById('introOverlay');
+  const stage = document.getElementById('introStage');
+  const text = document.getElementById('introText');
+  const skipBtn = document.getElementById('skipIntro');
+  const dontShow = document.getElementById('dontShowIntro');
 
-if(localStorage.getItem('skipPercentIntro')){
- document.getElementById('introOverlay').style.display='none';
- return;
-}
+  if (!overlay || !stage || !text || !skipBtn || !dontShow) return;
 
-const stage = document.getElementById('introStage');
-const text = document.getElementById('introText');
+  function closeIntro(){
+    overlay.style.display = 'none';
+  }
 
-function grid(count,color='#3b82f6',showGrid=true){
- stage.innerHTML=`
- <div style="position:relative;width:100%;height:100%;">
- 
- <div style="position:absolute;inset:0;background:#16a34a;border-radius:6px;">
-   <div style="position:absolute;left:50%;top:0;bottom:0;width:2px;background:white;"></div>
-   <div style="position:absolute;left:50%;top:50%;width:40px;height:40px;border:2px solid white;border-radius:50%;transform:translate(-50%,-50%);"></div>
- </div>
- 
- ${showGrid ? `
- <div style="position:absolute;inset:0;display:grid;grid-template-columns:repeat(10,1fr);gap:1px;">
- ${Array(100).fill(0).map((_,i)=>`<div style="background:${i<count?color:'rgba(255,255,255,0.25)'}"></div>`).join('')}
- </div>
- ` : ''}
- 
- </div>`
-}
+  function cellsFromIndices(indices, color){
+    const set = new Set(indices);
+    let html = '';
+    for(let r = 0; r < 10; r += 1){
+      for(let c = 0; c < 10; c += 1){
+        const i = r * 10 + c;
+        const fill = set.has(i) ? color : 'rgba(255,255,255,0.18)';
+        const borderBottom = r === 4 ? '2px solid rgba(0,0,0,0.28)' : '1px solid rgba(0,0,0,0.18)';
+        html += `<div style="background:${fill};border-right:1px solid rgba(0,0,0,0.18);border-bottom:${borderBottom};"></div>`;
+      }
+    }
+    return html;
+  }
 
-setTimeout(()=>{
- text.textContent='Ganzes Feld';
- grid(0,'#3b82f6',false);
-},500);
+  function renderIntro(indices, label, color = '#3b82f6', showGrid = true){
+    text.textContent = label;
+    const grid = showGrid
+      ? `<div style="position:absolute;inset:0;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);">${cellsFromIndices(indices, color)}</div>`
+      : '';
 
-setTimeout(()=>{
- text.textContent='Wir teilen in 100 Teile';
- grid(0,'#3b82f6',true);
-},2200);
+    stage.innerHTML = `
+      <div style="position:relative;width:100%;height:100%;background:#16a34a;border-radius:8px;overflow:hidden;">
+        ${grid}
+        <div style="position:absolute;left:50%;top:0;bottom:0;width:2px;background:white;transform:translateX(-50%);"></div>
+        <div style="position:absolute;left:50%;top:50%;width:40px;height:40px;border:2px solid white;border-radius:50%;transform:translate(-50%,-50%);"></div>
+      </div>`;
+  }
 
-setTimeout(()=>{
- text.textContent='1 %';
- grid(1);
-},3800);
+  function range(n){
+    return Array.from({length:n}, (_, i) => i);
+  }
 
-setTimeout(()=>{
- text.textContent='10 %';
- grid(10);
-},5400);
+  function quarterTopLeft(){
+    const out = [];
+    for(let r = 0; r < 5; r += 1){
+      for(let c = 0; c < 5; c += 1){
+        out.push(r * 10 + c);
+      }
+    }
+    return out;
+  }
 
-setTimeout(()=>{
- text.textContent='25 %';
- grid(25);
- setTimeout(()=>{ grid(25,'#3b82f6',true); },300);
- setTimeout(()=>{
-   stage.innerHTML = stage.innerHTML.replace(/background:#3b82f6/g,'background:#22c55e');
- },600);
-},7000);
+  function threeQuarters(){
+    const out = [];
+    for(let r = 0; r < 10; r += 1){
+      for(let c = 0; c < 10; c += 1){
+        if(!(r >= 5 && c >= 5)) out.push(r * 10 + c);
+      }
+    }
+    return out;
+  }
 
-setTimeout(()=>{
- text.textContent='50 %';
- grid(50);
-},8600);
+  const quarter = quarterTopLeft();
+  const threeQ = threeQuarters();
 
-setTimeout(()=>{
- text.textContent='75 %';
- grid(75);
- setTimeout(()=>{ grid(75,'#3b82f6',true); },300);
- setTimeout(()=>{
-   stage.innerHTML = stage.innerHTML.replace(/background:#3b82f6/g,'background:#22c55e');
- },600);
-},10200);
+  if(localStorage.getItem('skipPercentIntro') === 'true'){
+    overlay.style.display = 'none';
+    return;
+  }
 
-setTimeout(()=>{
- text.textContent='100 %';
- grid(100);
-},11800);
+  skipBtn.onclick = closeIntro;
+  dontShow.onchange = (e) => {
+    if(e.target.checked) localStorage.setItem('skipPercentIntro', 'true');
+    else localStorage.removeItem('skipPercentIntro');
+  };
 
-setTimeout(()=>{
- text.textContent='📊 Prozent gesucht';
- grid(0,'rgba(255,255,255,0.25)');
-},13600);
+  const steps = [
+    [500, () => renderIntro([], 'Ganzes Feld', '#3b82f6', false)],
+    [2500, () => renderIntro([], 'Wir teilen in 100 Teile')],
+    [4500, () => renderIntro(range(1), '1 %')],
+    [6500, () => renderIntro(range(10), '10 %')],
+    [8500, () => renderIntro(range(25), '25 %')],
+    [10000, () => renderIntro(quarter, '25 % = 1/4')],
+    [11500, () => renderIntro(range(50), '50 %')],
+    [13500, () => renderIntro(range(75), '75 %')],
+    [15000, () => renderIntro(threeQ, '75 % = 3/4')],
+    [16500, () => renderIntro(range(100), '100 %')],
+    [18500, () => renderIntro([], '📊 p = Prozent')],
+    [20000, () => renderIntro([0], '🧩 W = Teil', '#22c55e')],
+    [21500, () => renderIntro(range(100), '🟦 G = Ganzes')],
+    [23500, closeIntro]
+  ];
 
-setTimeout(()=>{
- text.textContent='🧩 Teil gesucht';
- grid(1,'#22c55e');
-},15000);
-
-setTimeout(()=>{
- text.textContent='🟦 Ganzes gesucht';
- grid(100,'#3b82f6');
-},16400);
-
-setTimeout(()=>{
- document.getElementById('introOverlay').style.opacity='0';
- setTimeout(()=>{
- document.getElementById('introOverlay').style.display='none';
- },400);
-},18200);
-}
-
-setTimeout(()=>{ runIntro(); },200);
-
-document.getElementById('skipIntro').onclick=()=>{
- document.getElementById('introOverlay').style.display='none';
-}
-
-document.getElementById('dontShowIntro').onchange=(e)=>{
- if(e.target.checked){
- localStorage.setItem('skipPercentIntro','true');
- }
-}
-
+  renderIntro([], '', '#3b82f6', false);
+  steps.forEach(([delay, fn]) => window.setTimeout(fn, delay));
+})();
 </script>
 
 </body>
