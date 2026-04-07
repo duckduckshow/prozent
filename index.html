@@ -172,7 +172,6 @@
         </div>
 
         <section class="exercise-card">
-          <div class="task-meta" id="taskLabel">Kopf</div>
           <div id="taskType" class="task-type"></div>
           <div class="task-text" id="taskText">Lade Aufgabe …</div>
 
@@ -290,6 +289,7 @@
 
     function renderType(type) {
       const gray = '#e5e7eb';
+      const line = '#111827';
       const green = '#22c55e';
       const blue = '#3b82f6';
       const cells = [];
@@ -302,7 +302,10 @@
         for (let i = 0; i < 9; i += 1) cells.push(gray);
       }
 
-      const grid = cells.map((color) => `<div style="width:12px;height:12px;background:${color};border-radius:2px;"></div>`).join('');
+      const grid = cells.map((color) => {
+        const border = type === 'prozent' ? `border:1px solid ${line};` : '';
+        return `<div style="width:12px;height:12px;background:${color};border-radius:2px;${border}"></div>`;
+      }).join('');
       const label = type === 'teil' ? '🧩 W' : type === 'ganz' ? '🟦 G' : '📊 p';
 
       return `<div style="display:flex;align-items:center;gap:10px;"><div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">${grid}</div><span>${label}</span></div>`;
@@ -348,7 +351,6 @@
     function newTask() {
       clearMessages();
       currentTask = topics[currentTopicIndex].generator(difficultyLevel());
-      taskLabel.textContent = currentTask.label;
       taskType.innerHTML = renderType(currentTask.type);
       taskText.textContent = currentTask.text;
       unitLabel.textContent = currentTask.unit || '';
