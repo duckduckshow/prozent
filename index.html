@@ -449,18 +449,18 @@
         const G = randChoice([20, 40, 50, 80, 100]);
         const p = randChoice([10, 25, 50]);
         const W = round2((G * p) / 100);
-        return { type: 'teil', text: `${p} % von ${G}${context}`, unit: '', answer: W, percent: p, hint: 'Teil von etwas suchen.', solution: `${G} · ${p} ÷ 100 = ${W}` };
+        return { type: 'teil', text: `${p} % von ${G}${context}`, unit: '', answer: W, percent: p, hint: 'Teil von etwas suchen.', solution: `${G} ÷ 100 · ${p} = ${W}` };
       }
       if (level === 1) {
         const G = randInt(20, 200);
         const p = randChoice([5, 10, 20, 25, 50]);
         const W = round2((G * p) / 100);
-        return { type: 'teil', text: `${p} % von ${G}${context}`, unit: '', answer: W, percent: p, hint: 'Mit 100 teilen.', solution: `${G} · ${p} ÷ 100 = ${W}` };
+        return { type: 'teil', text: `${p} % von ${G}${context}`, unit: '', answer: W, percent: p, hint: 'Mit 100 teilen.', solution: `${G} ÷ 100 · ${p} = ${W}` };
       }
       const G = randInt(50, 300);
       const p = randInt(3, 40);
       const W = round2((G * p) / 100);
-      return { type: 'teil', text: `Berechne ${p} % von ${G}${context}.`, unit: '', answer: W, percent: p, hint: 'W ist der Teil.', solution: `${G} · ${p} ÷ 100 = ${W}` };
+      return { type: 'teil', text: `Berechne ${p} % von ${G}${context}.`, unit: '', answer: W, percent: p, hint: 'W ist der Teil.', solution: `${G} ÷ 100 · ${p} = ${W}` };
     }
 
     function generateGrundwert(level) {
@@ -494,12 +494,12 @@
         const K = randChoice([100, 200, 500]);
         const p = randChoice([1, 2, 5]);
         const Z = round2((K * p) / 100);
-        return { type: 'teil', text: `${p} % von ${K} €`, unit: '€', answer: Z, percent: p, hint: 'Zinsen sind der Teil.', solution: `${K} · ${p} ÷ 100 = ${Z} €` };
+        return { type: 'teil', text: `${p} % von ${K} €`, unit: '€', answer: Z, percent: p, hint: 'Zinsen sind der Teil.', solution: `${K} ÷ 100 · ${p} = ${Z} €` };
       }
       const K = randInt(1, 20) * 100;
       const p = randChoice([1, 2, 3, 4, 5]);
       const Z = round2((K * p) / 100);
-      return { type: 'teil', text: `${p} % Zinsen von ${K} €`, unit: '€', answer: Z, percent: p, hint: 'Wie bei Prozentwert.', solution: `${K} · ${p} ÷ 100 = ${Z} €` };
+      return { type: 'teil', text: `${p} % Zinsen von ${K} €`, unit: '€', answer: Z, percent: p, hint: 'Wie bei Prozentwert.', solution: `${K} ÷ 100 · ${p} = ${Z} €` };
     }
 
     document.getElementById('checkBtn').addEventListener('click', checkAnswer);
