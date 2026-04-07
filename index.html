@@ -3,17 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Prozent- und Zinsrechnung Trainer</title>
+  <title>Prozent und Zinsen</title>
   <style>
     :root {
       --bg: #f3f6fb;
       --surface: #ffffff;
-      --surface-soft: #f8fbff;
+      --soft: #f8fbff;
       --text: #1f2937;
       --muted: #64748b;
       --border: #d9e3f0;
       --accent: #2563eb;
-      --accent-soft: #dbeafe;
       --ok: #166534;
       --ok-bg: #dcfce7;
       --bad: #991b1b;
@@ -23,52 +22,25 @@
       --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
       --radius-lg: 22px;
       --radius-md: 16px;
-      --radius-sm: 12px;
     }
-
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
       background: linear-gradient(180deg, #eef4ff 0%, var(--bg) 100%);
       color: var(--text);
-      line-height: 1.5;
     }
-
-    .wrap {
-      max-width: 1080px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 20px; }
     .hero {
       background: linear-gradient(135deg, #1d4ed8, #3b82f6);
       color: white;
       border-radius: 26px;
-      padding: 26px;
+      padding: 24px;
       box-shadow: var(--shadow);
       margin-bottom: 20px;
     }
-
-    .hero h1 {
-      margin: 0 0 8px;
-      font-size: clamp(1.8rem, 4vw, 2.6rem);
-    }
-
-    .hero p {
-      margin: 0;
-      max-width: 760px;
-      font-size: 1.02rem;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 320px 1fr;
-      gap: 20px;
-      align-items: start;
-    }
-
+    .hero h1 { margin: 0; font-size: clamp(1.8rem, 4vw, 2.6rem); }
+    .layout { display: grid; grid-template-columns: 320px 1fr; gap: 20px; align-items: start; }
     .panel {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -76,85 +48,30 @@
       box-shadow: var(--shadow);
       padding: 18px;
     }
-
-    .panel h2,
-    .panel h3 {
-      margin-top: 0;
-    }
-
-    .topic-list {
-      display: grid;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .topic-btn,
-    .btn {
+    .panel h2 { margin-top: 0; }
+    .topic-list { display: grid; gap: 10px; margin-bottom: 16px; }
+    .topic-btn, .btn {
       border: none;
       cursor: pointer;
       border-radius: 14px;
       font-size: 1rem;
       font-weight: 700;
-      transition: transform 0.12s ease, opacity 0.12s ease;
+      transition: transform 0.12s ease;
     }
-
-    .topic-btn:hover,
-    .btn:hover { transform: translateY(-1px); }
-    .topic-btn:active,
-    .btn:active { transform: translateY(0); }
-
+    .topic-btn:hover, .btn:hover { transform: translateY(-1px); }
     .topic-btn {
       text-align: left;
       padding: 13px 14px;
       background: #eef2ff;
       color: #1e3a8a;
     }
-
-    .topic-btn.active {
-      background: var(--accent);
-      color: white;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-
-    .stat {
-      background: var(--surface-soft);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 12px;
-    }
-
-    .stat-label {
-      color: var(--muted);
-      font-size: 0.9rem;
-      margin-bottom: 4px;
-    }
-
-    .stat-value {
-      font-size: 1.25rem;
-      font-weight: 700;
-    }
-
-    .progress {
-      height: 12px;
-      background: #e5e7eb;
-      border-radius: 999px;
-      overflow: hidden;
-      margin: 10px 0 16px;
-    }
-
-    .progress-bar {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #2563eb, #60a5fa);
-      transition: width 0.3s ease;
-    }
-
+    .topic-btn.active { background: var(--accent); color: white; }
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .stat { background: var(--soft); border: 1px solid var(--border); border-radius: 14px; padding: 12px; }
+    .stat-label { color: var(--muted); font-size: 0.9rem; margin-bottom: 4px; }
+    .stat-value { font-size: 1.25rem; font-weight: 700; }
+    .progress { height: 12px; background: #e5e7eb; border-radius: 999px; overflow: hidden; margin: 10px 0 16px; }
+    .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #2563eb, #60a5fa); transition: width 0.3s ease; }
     .formula {
       background: #eef2ff;
       border-left: 4px solid #4f46e5;
@@ -163,72 +80,19 @@
       font-weight: 700;
       margin-bottom: 14px;
     }
-
-    .main-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-    }
-
-    .mode-switch {
-      display: inline-flex;
-      gap: 8px;
-      background: #eff6ff;
-      padding: 6px;
-      border-radius: 14px;
-    }
-
-    .btn {
-      padding: 11px 15px;
-      background: var(--accent);
-      color: white;
-    }
-
-    .btn.secondary {
-      background: #e5edff;
-      color: #1e3a8a;
-    }
-
-    .btn.ghost {
-      background: #eef2f7;
-      color: #334155;
-    }
-
-    .btn.active {
-      outline: 3px solid #bfdbfe;
-    }
-
-    .exercise-card {
-      background: var(--surface-soft);
-      border: 1px solid #dbeafe;
-      border-radius: 22px;
-      padding: 24px;
-    }
-
-    .task-meta {
-      color: var(--muted);
-      font-size: 0.95rem;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-
-    .task-text {
-      font-size: clamp(1.15rem, 2.4vw, 1.5rem);
-      font-weight: 700;
-      margin-bottom: 22px;
-    }
-
-    .answer-box {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
-
+    details summary { cursor: pointer; font-weight: 700; color: #1e3a8a; }
+    details p { color: var(--muted); }
+    .main-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .mode-switch { display: inline-flex; gap: 8px; background: #eff6ff; padding: 6px; border-radius: 14px; }
+    .btn { padding: 11px 15px; background: var(--accent); color: white; }
+    .btn.secondary { background: #e5edff; color: #1e3a8a; }
+    .btn.ghost { background: #eef2f7; color: #334155; }
+    .btn.active { outline: 3px solid #bfdbfe; }
+    .exercise-card { background: var(--soft); border: 1px solid #dbeafe; border-radius: 22px; padding: 24px; }
+    .task-meta { color: var(--muted); font-size: 0.95rem; font-weight: 700; margin-bottom: 10px; }
+    .task-type { margin-bottom: 12px; min-height: 26px; }
+    .task-text { font-size: clamp(1.15rem, 2.4vw, 1.5rem); font-weight: 700; margin-bottom: 22px; }
+    .answer-box { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
     input[type="number"] {
       width: min(280px, 100%);
       padding: 14px 16px;
@@ -237,108 +101,32 @@
       font-size: 1.05rem;
       background: white;
     }
-
-    .unit {
-      color: var(--muted);
-      font-weight: 700;
-      font-size: 1rem;
-    }
-
-    .primary-actions,
-    .helper-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
+    .unit { color: var(--muted); font-weight: 700; font-size: 1rem; }
+    .primary-actions, .helper-actions { display: flex; flex-wrap: wrap; gap: 10px; }
     .primary-actions { margin-bottom: 10px; }
-
-    .feedback,
-    .hint,
-    .solution,
-    .purpose-box {
+    .feedback, .hint, .solution, .purpose-box {
       display: none;
       border-radius: 14px;
       padding: 14px 16px;
       margin-top: 14px;
     }
-
-    .feedback.good {
-      display: block;
-      background: var(--ok-bg);
-      color: var(--ok);
-    }
-
-    .feedback.bad {
-      display: block;
-      background: var(--bad-bg);
-      color: var(--bad);
-    }
-
-    .hint.show,
-    .solution.show,
-    .purpose-box.show {
-      display: block;
-    }
-
-    .hint.show,
-    .solution.show {
-      background: var(--hint-bg);
-      color: var(--hint);
-    }
-
-    .purpose-box.show {
-      background: #eff6ff;
-      color: #1e3a8a;
-      border: 1px solid #bfdbfe;
-    }
-
-    .purpose-box ul {
-      margin: 10px 0 0 20px;
-      padding: 0;
-    }
-
-    .purpose-box li + li {
-      margin-top: 6px;
-    }
-
-    .small-note {
-      color: var(--muted);
-      font-size: 0.95rem;
-      margin-top: 14px;
-    }
-
-    details summary {
-      cursor: pointer;
-      font-weight: 700;
-      color: #1e3a8a;
-    }
-
-    details p {
-      color: var(--muted);
-      margin-bottom: 0;
-    }
-
+    .feedback.good { display: block; background: var(--ok-bg); color: var(--ok); }
+    .feedback.bad { display: block; background: var(--bad-bg); color: var(--bad); }
+    .hint.show, .solution.show { display: block; background: var(--hint-bg); color: var(--hint); }
+    .purpose-box.show { display: block; background: #eff6ff; color: #1e3a8a; border: 1px solid #bfdbfe; }
+    .purpose-box ul { margin: 10px 0 0 20px; padding: 0; }
+    .small-note { color: var(--muted); font-size: 0.95rem; margin-top: 14px; }
     @media (max-width: 900px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-
-      .wrap {
-        padding: 14px;
-      }
-
-      .exercise-card {
-        padding: 18px;
-      }
+      .layout { grid-template-columns: 1fr; }
+      .wrap { padding: 14px; }
+      .exercise-card { padding: 18px; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <section class="hero">
-      <h1>Prozent- und Zinsrechnung</h1>
-      
+      <h1>Prozent und Zinsen</h1>
     </section>
 
     <div class="layout">
@@ -358,7 +146,7 @@
         </div>
 
         <div class="stat" style="margin-bottom:12px;">
-          <div class="stat-label">Aktuelles Thema</div>
+          <div class="stat-label">Thema</div>
           <div class="stat-value" id="levelBadge" style="font-size:1.05rem;">Prozentwert</div>
         </div>
 
@@ -369,22 +157,23 @@
         <div class="formula" id="formulaBox"></div>
 
         <details>
-          <summary>Was ist hier wichtig?</summary>
+          <summary>Um was geht es hier?</summary>
           <p id="topicSummary"></p>
         </details>
       </aside>
 
       <main class="panel">
         <div class="main-top">
-          <h2 style="margin:0;">Übungsfläche</h2>
+          <h2 style="margin:0;">Aufgabe</h2>
           <div class="mode-switch">
-            <button class="btn secondary active" id="normalModeBtn">Üben</button>
-            <button class="btn secondary" id="testModeBtn">Test</button>
+            <button class="btn secondary active" id="normalModeBtn" type="button">Üben</button>
+            <button class="btn secondary" id="testModeBtn" type="button">Test</button>
           </div>
         </div>
 
         <section class="exercise-card">
-          <div class="task-meta" id="taskLabel">Basisaufgabe</div>
+          <div class="task-meta" id="taskLabel">Kopf</div>
+          <div id="taskType" class="task-type"></div>
           <div class="task-text" id="taskText">Lade Aufgabe …</div>
 
           <div class="answer-box">
@@ -393,15 +182,15 @@
           </div>
 
           <div class="primary-actions">
-            <button class="btn" id="checkBtn">Prüfen</button>
-            <button class="btn secondary" id="nextBtn">Weiter</button>
+            <button class="btn" id="checkBtn" type="button">Prüfen</button>
+            <button class="btn secondary" id="nextBtn" type="button">Weiter</button>
           </div>
 
           <div class="helper-actions">
-            <button class="btn ghost" id="hintBtn">Hilfe</button>
-            <button class="btn ghost" id="solutionBtn">Zeig Lösung</button>
-            <button class="btn ghost" id="purposeBtn">Wozu brauche ich das?</button>
-            <button class="btn ghost" id="resetBtn">Neu starten</button>
+            <button class="btn ghost" id="hintBtn" type="button">Hilfe</button>
+            <button class="btn ghost" id="solutionBtn" type="button">Zeig Lösung</button>
+            <button class="btn ghost" id="purposeBtn" type="button">Wozu brauche ich das?</button>
+            <button class="btn ghost" id="resetBtn" type="button">Neu starten</button>
           </div>
 
           <div class="feedback" id="feedbackBox"></div>
@@ -410,7 +199,7 @@
           <div class="purpose-box" id="purposeBox"></div>
         </section>
 
-        <p class="small-note">Hilfe: Überlege zuerst immer, ob nach Teil, Ganzem oder Prozentsatz gefragt wird.</p>
+        <p class="small-note">Was suchen wir? Teil, Ganzes oder Prozent.</p>
       </main>
     </div>
   </div>
@@ -423,10 +212,7 @@
         short: 'Prozentwert',
         formula: 'W = G · p / 100',
         summary: 'Du suchst einen Teil von etwas.',
-        purpose: {
-          title: 'Wozu brauche ich das?',
-          points: ['Rabatte berechnen.', 'Anteile verstehen.', 'Teil von etwas berechnen.']
-        },
+        purpose: ['Rabatte berechnen.', 'Anteile verstehen.', 'Teil von etwas berechnen.'],
         generator: generateProzentwert
       },
       {
@@ -435,10 +221,7 @@
         short: 'Grundwert',
         formula: 'G = W · 100 / p',
         summary: 'Du suchst das Ganze.',
-        purpose: {
-          title: 'Wozu brauche ich das?',
-          points: ['Alter Preis berechnen.', 'Gesamtzahl finden.', 'Vom Teil zurück rechnen.']
-        },
+        purpose: ['Alter Preis berechnen.', 'Gesamtzahl finden.', 'Vom Teil zurück rechnen.'],
         generator: generateGrundwert
       },
       {
@@ -447,10 +230,7 @@
         short: 'Prozent',
         formula: 'p = W / G · 100',
         summary: 'Du vergleichst Teil und Ganzes.',
-        purpose: {
-          title: 'Wozu brauche ich das?',
-          points: ['Vergleichen.', 'Preisänderungen verstehen.', 'Prozent lesen.']
-        },
+        purpose: ['Vergleichen.', 'Preisänderungen verstehen.', 'Prozent lesen.'],
         generator: generateProzentsatz
       },
       {
@@ -459,10 +239,7 @@
         short: 'Zinsen',
         formula: 'Z = K · p / 100',
         summary: 'Geld wird mehr.',
-        purpose: {
-          title: 'Wozu brauche ich das?',
-          points: ['Sparen verstehen.', 'Kredite verstehen.', 'Geld wächst.']
-        },
+        purpose: ['Sparen verstehen.', 'Kredite verstehen.', 'Geld wächst.'],
         generator: generateZins
       }
     ];
@@ -497,6 +274,10 @@
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
+    function randChoice(list) {
+      return list[randInt(0, list.length - 1)];
+    }
+
     function round2(n) {
       return Math.round((n + Number.EPSILON) * 100) / 100;
     }
@@ -508,73 +289,39 @@
     }
 
     function renderType(type) {
-      const common = 'width:12px;height:12px;border-radius:2px;';
+      const gray = '#e5e7eb';
+      const green = '#22c55e';
+      const blue = '#3b82f6';
+      const cells = [];
+
       if (type === 'teil') {
-        return `
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">
-              <div style="${common}background:#22c55e"></div>
-              <div style="${common}background:#e5e7eb"></div>
-              <div style="${common}background:#e5e7eb"></div>
-              <div style="${common}background:#e5e7eb"></div>
-              <div style="${common}background:#e5e7eb"></div>
-              <div style="${common}background:#e5e7eb"></div>
-              <div style="${common}background:#e5e7eb"></div>
-              <div style="${common}background:#e5e7eb"></div>
-              <div style="${common}background:#e5e7eb"></div>
-            </div>
-            <span>🧩 W</span>
-          </div>`;
+        cells.push(green, gray, gray, gray, gray, gray, gray, gray, gray);
+      } else if (type === 'ganz') {
+        for (let i = 0; i < 9; i += 1) cells.push(blue);
+      } else {
+        for (let i = 0; i < 9; i += 1) cells.push(gray);
       }
 
-      if (type === 'ganz') {
-        return `
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">
-              <div style="${common}background:#3b82f6"></div>
-              <div style="${common}background:#3b82f6"></div>
-              <div style="${common}background:#3b82f6"></div>
-              <div style="${common}background:#3b82f6"></div>
-              <div style="${common}background:#3b82f6"></div>
-              <div style="${common}background:#3b82f6"></div>
-              <div style="${common}background:#3b82f6"></div>
-              <div style="${common}background:#3b82f6"></div>
-              <div style="${common}background:#3b82f6"></div>
-            </div>
-            <span>🟦 G</span>
-          </div>`;
-      }
+      const grid = cells.map((color) => `<div style="width:12px;height:12px;background:${color};border-radius:2px;"></div>`).join('');
+      const label = type === 'teil' ? '🧩 W' : type === 'ganz' ? '🟦 G' : '📊 p';
 
-      return `
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">
-            <div style="${common}background:#e5e7eb"></div>
-            <div style="${common}background:#e5e7eb"></div>
-            <div style="${common}background:#e5e7eb"></div>
-            <div style="${common}background:#e5e7eb"></div>
-            <div style="${common}background:#e5e7eb"></div>
-            <div style="${common}background:#e5e7eb"></div>
-            <div style="${common}background:#e5e7eb"></div>
-            <div style="${common}background:#e5e7eb"></div>
-            <div style="${common}background:#e5e7eb"></div>
-          </div>
-          <span>📊 p</span>
-        </div>`;
+      return `<div style="display:flex;align-items:center;gap:10px;"><div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">${grid}</div><span>${label}</span></div>`;
     }
 
     function renderSidebar() {
       const topic = topics[currentTopicIndex];
       levelBadge.textContent = topic.short;
-      scoreBadge.textContent = score;
-      streakBadge.textContent = streak;
+      scoreBadge.textContent = String(score);
+      streakBadge.textContent = String(streak);
       formulaBox.textContent = topic.formula;
       topicSummary.textContent = topic.summary;
-      progressBar.style.width = ((currentTopicIndex + 1) / topics.length) * 100 + '%';
+      progressBar.style.width = `${((currentTopicIndex + 1) / topics.length) * 100}%`;
 
       topicButtons.innerHTML = '';
       topics.forEach((topicItem, index) => {
         const btn = document.createElement('button');
         btn.className = 'topic-btn' + (index === currentTopicIndex ? ' active' : '');
+        btn.type = 'button';
         btn.textContent = topicItem.title;
         btn.addEventListener('click', () => {
           currentTopicIndex = index;
@@ -606,6 +353,7 @@
       taskText.textContent = currentTask.text;
       unitLabel.textContent = currentTask.unit || '';
       answerInput.value = '';
+      answerInput.focus();
     }
 
     function checkAnswer() {
@@ -652,7 +400,7 @@
     function showPurpose() {
       const topic = topics[currentTopicIndex];
       purposeBox.className = 'purpose-box show';
-      purposeBox.innerHTML = `<strong>${topic.purpose.title}</strong><ul>${topic.purpose.points.map(point => `<li>${point}</li>`).join('')}</ul>`;
+      purposeBox.innerHTML = `<strong>Wozu brauche ich das?</strong><ul>${topic.purpose.map((point) => `<li>${point}</li>`).join('')}</ul>`;
     }
 
     function resetAll() {
@@ -673,137 +421,60 @@
 
     function generateProzentwert(level) {
       if (level === 0) {
-        const G = [20, 40, 50, 80, 100][randInt(0, 4)];
-        const p = [10, 25, 50][randInt(0, 2)];
-        const W = round2(G * p / 100);
-        return {
-          type: 'teil',
-          label: 'Kopf',
-          text: `${p} % von ${G}`,
-          unit: '',
-          answer: W,
-          hint: 'Teil von etwas suchen.',
-          solution: `${G} · ${p} ÷ 100 = ${W}`
-        };
+        const G = randChoice([20, 40, 50, 80, 100]);
+        const p = randChoice([10, 25, 50]);
+        const W = round2((G * p) / 100);
+        return { type: 'teil', label: 'Kopf', text: `${p} % von ${G}`, unit: '', answer: W, hint: 'Teil von etwas suchen.', solution: `${G} · ${p} ÷ 100 = ${W}` };
       }
-
       if (level === 1) {
         const G = randInt(20, 200);
-        const p = [5, 10, 20, 25, 50][randInt(0, 4)];
-        const W = round2(G * p / 100);
-        return {
-          type: 'teil',
-          label: 'Einfach',
-          text: `${p} % von ${G}`,
-          unit: '',
-          answer: W,
-          hint: 'Mit 100 teilen.',
-          solution: `${G} · ${p} ÷ 100 = ${W}`
-        };
+        const p = randChoice([5, 10, 20, 25, 50]);
+        const W = round2((G * p) / 100);
+        return { type: 'teil', label: 'Einfach', text: `${p} % von ${G}`, unit: '', answer: W, hint: 'Mit 100 teilen.', solution: `${G} · ${p} ÷ 100 = ${W}` };
       }
-
       const G = randInt(50, 300);
       const p = randInt(3, 40);
-      const W = round2(G * p / 100);
-      return {
-        type: 'teil',
-        label: 'Aufgabe',
-        text: `Berechne ${p} % von ${G}.`,
-        unit: '',
-        answer: W,
-        hint: 'W ist der Teil.',
-        solution: `${G} · ${p} ÷ 100 = ${W}`
-      };
+      const W = round2((G * p) / 100);
+      return { type: 'teil', label: 'Aufgabe', text: `Berechne ${p} % von ${G}.`, unit: '', answer: W, hint: 'W ist der Teil.', solution: `${G} · ${p} ÷ 100 = ${W}` };
     }
 
     function generateGrundwert(level) {
       if (level === 0) {
-        const G = [40, 50, 80, 100][randInt(0, 3)];
-        const p = [10, 20, 25, 50][randInt(0, 3)];
-        const W = round2(G * p / 100);
-        return {
-          type: 'ganz',
-          label: 'Kopf',
-          text: `${W} sind ${p} % von ?`,
-          unit: '',
-          answer: G,
-          hint: 'Das Ganze suchen.',
-          solution: `${W} · 100 ÷ ${p} = ${G}`
-        };
+        const G = randChoice([40, 50, 80, 100]);
+        const p = randChoice([10, 20, 25, 50]);
+        const W = round2((G * p) / 100);
+        return { type: 'ganz', label: 'Kopf', text: `${W} sind ${p} % von ?`, unit: '', answer: G, hint: 'Das Ganze suchen.', solution: `${W} · 100 ÷ ${p} = ${G}` };
       }
-
-      const p = [5, 10, 20, 25, 50][randInt(0, 4)];
+      const p = randChoice([5, 10, 20, 25, 50]);
       const G = randInt(4, 30) * 10;
-      const W = round2(G * p / 100);
-      return {
-        type: 'ganz',
-        label: level === 1 ? 'Einfach' : 'Aufgabe',
-        text: `${W} sind ${p} % von ?`,
-        unit: '',
-        answer: G,
-        hint: 'Auf 100 % hochrechnen.',
-        solution: `${W} · 100 ÷ ${p} = ${G}`
-      };
+      const W = round2((G * p) / 100);
+      return { type: 'ganz', label: level === 1 ? 'Einfach' : 'Aufgabe', text: `${W} sind ${p} % von ?`, unit: '', answer: G, hint: 'Auf 100 % hochrechnen.', solution: `${W} · 100 ÷ ${p} = ${G}` };
     }
 
     function generateProzentsatz(level) {
       if (level === 0) {
-        const G = [40, 50, 80, 100][randInt(0, 3)];
-        const p = [10, 20, 25, 50][randInt(0, 3)];
-        const W = round2(G * p / 100);
-        return {
-          type: 'prozent',
-          label: 'Kopf',
-          text: `${W} von ${G} = ? %`,
-          unit: '%',
-          answer: p,
-          hint: 'Teil mit Ganzem vergleichen.',
-          solution: `${W} ÷ ${G} · 100 = ${p}`
-        };
+        const G = randChoice([40, 50, 80, 100]);
+        const p = randChoice([10, 20, 25, 50]);
+        const W = round2((G * p) / 100);
+        return { type: 'prozent', label: 'Kopf', text: `${W} von ${G} = ? %`, unit: '%', answer: p, hint: 'Teil mit Ganzem vergleichen.', solution: `${W} ÷ ${G} · 100 = ${p}` };
       }
-
       const G = randInt(40, 300);
-      const p = [5, 10, 20, 25, 50, 75][randInt(0, 5)];
-      const W = round2(G * p / 100);
-      return {
-        type: 'prozent',
-        label: level === 1 ? 'Einfach' : 'Aufgabe',
-        text: `${W} von ${G} sind wie viel %?`,
-        unit: '%',
-        answer: p,
-        hint: 'Teil ÷ Ganzes · 100.',
-        solution: `${W} ÷ ${G} · 100 = ${p}`
-      };
+      const p = randChoice([5, 10, 20, 25, 50, 75]);
+      const W = round2((G * p) / 100);
+      return { type: 'prozent', label: level === 1 ? 'Einfach' : 'Aufgabe', text: `${W} von ${G} sind wie viel %?`, unit: '%', answer: p, hint: 'Teil ÷ Ganzes · 100.', solution: `${W} ÷ ${G} · 100 = ${p}` };
     }
 
     function generateZins(level) {
       if (level === 0) {
-        const K = [100, 200, 500][randInt(0, 2)];
-        const p = [1, 2, 5][randInt(0, 2)];
-        const Z = round2(K * p / 100);
-        return {
-          type: 'teil',
-          label: 'Kopf',
-          text: `${p} % von ${K} €`,
-          unit: '€',
-          answer: Z,
-          hint: 'Zinsen sind der Teil.',
-          solution: `${K} · ${p} ÷ 100 = ${Z} €`
-        };
+        const K = randChoice([100, 200, 500]);
+        const p = randChoice([1, 2, 5]);
+        const Z = round2((K * p) / 100);
+        return { type: 'teil', label: 'Kopf', text: `${p} % von ${K} €`, unit: '€', answer: Z, hint: 'Zinsen sind der Teil.', solution: `${K} · ${p} ÷ 100 = ${Z} €` };
       }
-
       const K = randInt(1, 20) * 100;
-      const p = [1, 2, 3, 4, 5][randInt(0, 4)];
-      const Z = round2(K * p / 100);
-      return {
-        type: 'teil',
-        label: level === 1 ? 'Einfach' : 'Aufgabe',
-        text: `${p} % Zinsen von ${K} €`,
-        unit: '€',
-        answer: Z,
-        hint: 'Wie bei Prozentwert.',
-        solution: `${K} · ${p} ÷ 100 = ${Z} €`
-      };
+      const p = randChoice([1, 2, 3, 4, 5]);
+      const Z = round2((K * p) / 100);
+      return { type: 'teil', label: level === 1 ? 'Einfach' : 'Aufgabe', text: `${p} % Zinsen von ${K} €`, unit: '€', answer: Z, hint: 'Wie bei Prozentwert.', solution: `${K} · ${p} ÷ 100 = ${Z} €` };
     }
 
     document.getElementById('checkBtn').addEventListener('click', checkAnswer);
@@ -812,20 +483,9 @@
     document.getElementById('solutionBtn').addEventListener('click', showSolution);
     document.getElementById('purposeBtn').addEventListener('click', showPurpose);
     document.getElementById('resetBtn').addEventListener('click', resetAll);
-
-    normalModeBtn.addEventListener('click', () => {
-      mode = 'practice';
-      renderAll();
-    });
-
-    testModeBtn.addEventListener('click', () => {
-      mode = 'test';
-      renderAll();
-    });
-
-    answerInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') checkAnswer();
-    });
+    normalModeBtn.addEventListener('click', () => { mode = 'practice'; renderAll(); });
+    testModeBtn.addEventListener('click', () => { mode = 'test'; renderAll(); });
+    answerInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') checkAnswer(); });
 
     renderAll();
     newTask();
