@@ -297,9 +297,47 @@
       const green = '#22c55e';
       const blue = '#3b82f6';
 
+      // W — Teil → 10x10 Raster
+      if (type === 'teil' && typeof value === 'number') {
+        const filled = Math.max(0, Math.min(100, Math.round(value)));
+        const cells = Array(100).fill(0).map((_, i) =>
+          `<div style="width:7px;height:7px;background:${i < filled ? green : '#ffffff'}"></div>`
+        ).join('');
+
+        return `
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="display:grid;grid-template-columns:repeat(10,7px);gap:2px;background:#111827;padding:2px;border-radius:3px;">
+            ${cells}
+          </div>
+          <span>🧩 W</span>
+        </div>`;
+      }
+
+      // p — Prozent → 3x3 leeres Raster
+      if(type === 'prozent'){
+        return `
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;background:#111827;padding:2px;border-radius:3px;">
+            ${Array(9).fill('<div style="width:12px;height:12px;background:white"></div>').join('')}
+          </div>
+          <span>📊 p</span>
+        </div>`;
+      }
+
+      // G — Ganzes → 3x3 voll
+      return `
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">
+          ${Array(9).fill('<div style="width:12px;height:12px;background:#3b82f6"></div>').join('')}
+        </div>
+        <span>🟦 G</span>
+      </div>`;
+    }
+
       if(type === 'prozent' && typeof value === 'number'){
+        const filled = Math.max(0, Math.min(100, Math.round(value)));
         const cells = Array(100).fill(0).map((_,i)=>
-          `<div style="width:6px;height:6px;background:${i<Math.round(value)?blue:gray};"></div>`
+          `<div style="width:6px;height:6px;background:${i<filled?blue:gray};"></div>`
         ).join('');
 
         return `<div style="display:flex;align-items:center;gap:10px;">
@@ -310,19 +348,10 @@
         </div>`;
       }
 
-      const cells = [];
-
-      if (type === 'teil') {
-        cells.push(green, gray, gray, gray, gray, gray, gray, gray, gray);
-      } else {
-        for (let i = 0; i < 9; i += 1) cells.push(blue);
-      }
-
+      const cells = Array(9).fill(blue);
       const grid = cells.map((color) => `<div style="width:12px;height:12px;background:${color};"></div>`).join('');
-
-      const label = type === 'teil' ? '🧩 W' : '🟦 G';
-
-      return `<div style="display:flex;align-items:center;gap:10px;"><div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">${grid}</div><span>${label}</span></div>`;
+      return `<div style="display:flex;align-items:center;gap:10px;">
+      <div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">${grid}</div><span>🟦 G</span></div>`;
     }
 
     function renderSidebar() {
