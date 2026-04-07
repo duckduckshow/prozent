@@ -379,7 +379,7 @@
           <h2 style="margin:0;">Übungsfläche</h2>
           <div class="mode-switch">
             <button class="btn secondary active" id="normalModeBtn">Üben</button>
-            <button class="btn secondary" id="testModeBtn">Testmodus</button>
+            <button class="btn secondary" id="testModeBtn">Test</button>
           </div>
         </div>
 
@@ -394,14 +394,14 @@
 
           <div class="primary-actions">
             <button class="btn" id="checkBtn">Prüfen</button>
-            <button class="btn secondary" id="nextBtn">Neue Aufgabe</button>
+            <button class="btn secondary" id="nextBtn">Weiter</button>
           </div>
 
           <div class="helper-actions">
-            <button class="btn ghost" id="hintBtn">Tipp</button>
-            <button class="btn ghost" id="solutionBtn">Lösung</button>
+            <button class="btn ghost" id="hintBtn">Hilfe</button>
+            <button class="btn ghost" id="solutionBtn">Zeig Lösung</button>
             <button class="btn ghost" id="purposeBtn">Wozu brauche ich das?</button>
-            <button class="btn ghost" id="resetBtn">Zurücksetzen</button>
+            <button class="btn ghost" id="resetBtn">Neu starten</button>
           </div>
 
           <div class="feedback" id="feedbackBox"></div>
@@ -410,7 +410,7 @@
           <div class="purpose-box" id="purposeBox"></div>
         </section>
 
-        <p class="small-note">Tipp: Überlege zuerst immer, ob nach Teil, Ganzem oder Prozentsatz gefragt wird.</p>
+        <p class="small-note">Hilfe: Überlege zuerst immer, ob nach Teil, Ganzem oder Prozentsatz gefragt wird.</p>
       </main>
     </div>
   </div>
@@ -615,7 +615,7 @@
         if (mode === 'test') {
           const exact = Number.isInteger(currentTask.answer) ? currentTask.answer : currentTask.answer.toFixed(2);
           solutionBox.className = 'solution show';
-          solutionBox.innerHTML = `<strong>Richtige Lösung:</strong> ${exact} ${currentTask.unit || ''}`;
+          solutionBox.innerHTML = `<strong>Richtige Zeig Lösung:</strong> ${exact} ${currentTask.unit || ''}`;
         }
       }
 
@@ -625,7 +625,7 @@
     function showHint() {
       hintBox.className = 'hint show';
       hintBox.textContent = mode === 'test'
-        ? 'Im Testmodus sind Hinweise bewusst kurz. Denke an die passende Formel.'
+        ? 'Im Test sind Hinweise bewusst kurz. Denke an die passende Formel.'
         : currentTask.hint;
     }
 
@@ -723,8 +723,8 @@
         unit: '€',
         answer: result,
         hint: isDiscount
-          ? 'Berechne zuerst den Rabatt und ziehe ihn dann ab.'
-          : 'Berechne zuerst die Erhöhung und addiere sie dann.',
+          ? 'Zuerst Rabatt berechnen. Dann abziehen.'
+          : 'Zuerst Prozent berechnen. Dann dazurechnen.',
         solution: isDiscount
           ? `<strong>Rechnung:</strong><br>Rabatt = ${base} · ${p} ÷ 100 = ${amount} €<br>Neuer Preis = ${base} € − ${amount} € = ${result} €`
           : `<strong>Rechnung:</strong><br>Erhöhung = ${base} · ${p} ÷ 100 = ${amount} €<br>Neuer Preis = ${base} € + ${amount} € = ${result} €`,
@@ -789,4 +789,3 @@
   </script>
 </body>
 </html>
-
