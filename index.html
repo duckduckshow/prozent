@@ -292,32 +292,35 @@
       return 2;
     }
 
-    function renderType(type) {
+    function renderType(type,value) {
       const gray = '#e5e7eb';
-      const line = '#111827';
       const green = '#22c55e';
       const blue = '#3b82f6';
+
+      if(type === 'prozent' && typeof value === 'number'){
+        const cells = Array(100).fill(0).map((_,i)=>
+          `<div style="width:6px;height:6px;background:${i<Math.round(value)?blue:gray};"></div>`
+        ).join('');
+
+        return `<div style="display:flex;align-items:center;gap:10px;">
+        <div style="display:grid;grid-template-columns:repeat(10,6px);gap:1px;background:#111827;padding:2px;border-radius:2px;">
+        ${cells}
+        </div>
+        <span>📊 p</span>
+        </div>`;
+      }
+
       const cells = [];
 
       if (type === 'teil') {
         cells.push(green, gray, gray, gray, gray, gray, gray, gray, gray);
-      } else if (type === 'ganz') {
-        for (let i = 0; i < 9; i += 1) cells.push(blue);
       } else {
-        for (let i = 0; i < 9; i += 1) cells.push(gray);
+        for (let i = 0; i < 9; i += 1) cells.push(blue);
       }
 
-      let grid;
-      if(type === 'prozent'){
-        grid = `<div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;background:#111827;padding:2px;border-radius:2px;">
-          ${cells.map(color => `<div style="width:12px;height:12px;background:${color};"></div>`).join('')}
-        </div>`;
-      } else {
-        grid = `<div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">
-          ${cells.map(color => `<div style="width:12px;height:12px;background:${color};"></div>`).join('')}
-        </div>`;
-      }
-      const label = type === 'teil' ? '🧩 W' : type === 'ganz' ? '🟦 G' : '📊 p';
+      const grid = cells.map((color) => `<div style="width:12px;height:12px;background:${color};"></div>`).join('');
+
+      const label = type === 'teil' ? '🧩 W' : '🟦 G';
 
       return `<div style="display:flex;align-items:center;gap:10px;"><div style="display:grid;grid-template-columns:repeat(3,12px);gap:2px;">${grid}</div><span>${label}</span></div>`;
     }
@@ -362,7 +365,7 @@
     function newTask() {
       clearMessages();
       currentTask = topics[currentTopicIndex].generator(difficultyLevel());
-      taskType.innerHTML = renderType(currentTask.type);
+      taskType.innerHTML = renderType(currentTask.type, currentTask.answer);
       taskText.textContent = currentTask.text;
       unitLabel.textContent = currentTask.unit || '';
       answerInput.value = '';
@@ -576,7 +579,14 @@ setTimeout(()=>{
 },7000);
 
 setTimeout(()=>{
+ text.textContent='75 %';
+ grid(75);
+},8600);
+
+setTimeout(()=>{
  text.textContent='100 %';
+ grid(100);
+},10200);
  grid(100);
 },8600);
 
