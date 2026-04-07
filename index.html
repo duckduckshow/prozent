@@ -529,7 +529,7 @@ if(localStorage.getItem('skipPercentIntro')){
 const stage = document.getElementById('introStage');
 const text = document.getElementById('introText');
 
-function grid(count,color='#3b82f6'){
+function grid(count,color='#3b82f6',showGrid=true){
  stage.innerHTML=`
  <div style="position:relative;width:100%;height:100%;">
  
@@ -538,17 +538,22 @@ function grid(count,color='#3b82f6'){
    <div style="position:absolute;left:50%;top:50%;width:40px;height:40px;border:2px solid white;border-radius:50%;transform:translate(-50%,-50%);"></div>
  </div>
  
- <div style="position:absolute;inset:0;display:grid;grid-template-columns:repeat(10,1fr);gap:1px;">
+ ${showGrid ? `<div style="position:absolute;inset:0;display:grid;grid-template-columns:repeat(10,1fr);gap:1px;">` : ''}
  ${Array(100).fill(0).map((_,i)=>`<div style="background:${i<count?color:'rgba(255,255,255,0.25)'}"></div>`).join('')}
- </div>
+ ${showGrid ? '</div>' : ''}
  
  </div>`
 }
 
 setTimeout(()=>{
- text.textContent='100 Felder = 100 %';
- grid(0);
+ text.textContent='Ganzes Feld';
+ grid(0,'#3b82f6',false);
 },500);
+
+setTimeout(()=>{
+ text.textContent='Wir teilen in 100 Teile';
+ grid(0,'#3b82f6',true);
+},2200);
 
 setTimeout(()=>{
  text.textContent='1 %';
@@ -614,4 +619,3 @@ document.getElementById('dontShowIntro').onchange=(e)=>{
 
 </body>
 </html>
-
